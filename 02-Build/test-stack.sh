@@ -28,22 +28,22 @@ check_service() {
     fi
 }
 
-# 1. Port 80 Gateway
-check_service "Sago Launchpad (Port 80)" "http://localhost" "200|302|301"
-
-# 2. FileBrowser (checking 8082 first, fallback 8080)
-FB_PORT="8082"
-if ! curl -s -o /dev/null --connect-timeout 2 "http://localhost:8082" 2>/dev/null; then
-    if curl -s -o /dev/null --connect-timeout 2 "http://localhost:8080" 2>/dev/null; then
-        FB_PORT="8080"
+# 1. Port 80 Gateway (or fallback 8000)
+GW_URL="http://localhost"
+if ! curl -s -o /dev/null --connect-timeout 2 "http://localhost" 2>/dev/null; then
+    if curl -s -o /dev/null --connect-timeout 2 "http://localhost:8000" 2>/dev/null; then
+        GW_URL="http://localhost:8000"
     fi
 fi
-check_service "FileBrowser Drive (Port $FB_PORT)" "http://localhost:$FB_PORT" "200|302|301"
+check_service "Sago Launchpad ($GW_URL)" "$GW_URL" "200|302|301"
 
-# 3. Jellyfin
+# 2. FileBrowser Drive (Port 8082)
+check_service "FileBrowser Drive (Port 8082)" "http://localhost:8082" "200|302|301"
+
+# 3. Jellyfin Streaming (Port 8096)
 check_service "Jellyfin Streaming (Port 8096)" "http://localhost:8096" "200|302|301"
 
-# 4. Immich
+# 4. Immich Photos (Port 2283)
 check_service "Immich Photos (Port 2283)" "http://localhost:2283" "200|302|301|401|404"
 
 echo ""
@@ -51,11 +51,8 @@ echo "========================================================="
 if [ $FAIL -eq 0 ]; then
     echo " 🎉 ALL $PASS SERVICES ARE HEALTHY & RESPONSIVE!"
 else
-    echo " ⚠️ $FAIL service(s) did not respond yet."
+    echo " ⚠️ $FAIL service(s) did not respond."
     echo ""
-    echo " 💡 Diagnostic Steps:"
-    echo "    1. Check container status: docker compose ps"
-    echo "    2. Check Jellyfin logs   : docker compose logs jellyfin --tail 20"
-    echo "    3. Check Immich logs     : docker compose logs immich-server --tail 20"
+    echo " 💡 Diagnostic Tip: Run 'docker compose ps' to see active containers."
 fi
 echo "========================================================="
