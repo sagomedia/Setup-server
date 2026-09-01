@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sago Home Server — Private Cloud</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --card-border: #30363d;
+      --text: #f0f6fc;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --yellow: #fee75c;
+      --green: #238636;
+      --purple: #a371f7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 6px 14px;
+      background: rgba(88, 166, 255, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(88, 166, 255, 0.3);
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 600px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      width: 100%;
+      max-width: 960px;
+      margin-bottom: 40px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 28px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 8px 30px rgba(88, 166, 255, 0.2);
+    }
+    .card-icon {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+    .card-btn {
+      display: inline-block;
+      text-align: center;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      background: #21262d;
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      transition: background 0.2s;
+    }
+    .card:hover .card-btn {
+      background: var(--accent);
+      color: #000;
+      border-color: var(--accent);
+    }
+    .tv-section {
+      width: 100%;
+      max-width: 960px;
+      background: rgba(22, 27, 34, 0.6);
+      border: 1px dashed #30363d;
+      border-radius: 16px;
+      padding: 24px 30px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .tv-icon { font-size: 3rem; }
+    .tv-text h3 { font-size: 1.15rem; margin-bottom: 6px; color: var(--yellow); }
+    .tv-text p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.4; }
+    .footer {
+      margin-top: 50px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="badge">SAGO AUTOMATIONS • 24/7 PRIVATE CLOUD</div>
+    <h1>Home Server Launchpad</h1>
+    <p class="subtitle">Your private, unlimited cloud running locally on your home WiFi and worldwide over 5G.</p>
+  </div>
+
+  <div class="grid">
+    <!-- Immich Photos -->
+    <a href=":2283" class="card" target="_blank">
+      <div>
+        <div class="card-icon">📸</div>
+        <div class="card-title">
+          Immich Photos
+          <span style="font-size: 0.75rem; color: #3fb950; font-weight: normal;">Port 2283</span>
+        </div>
+        <p class="card-desc">Private Google Photos alternative with AI face recognition, map timeline, and mobile auto-backup.</p>
+      </div>
+      <div class="card-btn">Open Photos →</div>
+    </a>
+
+    <!-- Jellyfin OTT -->
+    <a href=":8096" class="card" target="_blank">
+      <div>
+        <div class="card-icon">🎬</div>
+        <div class="card-title">
+          Jellyfin Movies
+          <span style="font-size: 0.75rem; color: #58a6ff; font-weight: normal;">Port 8096</span>
+        </div>
+        <p class="card-desc">Private Netflix streaming in 4K directly to your TV, iPad, and phone with zero buffering.</p>
+      </div>
+      <div class="card-btn">Stream Movies →</div>
+    </a>
+
+    <!-- FileBrowser Drive -->
+    <a href=":8080" class="card" target="_blank">
+      <div>
+        <div class="card-icon">📁</div>
+        <div class="card-title">
+          FileBrowser Drive
+          <span style="font-size: 0.75rem; color: #a371f7; font-weight: normal;">Port 8080</span>
+        </div>
+        <p class="card-desc">Personal Google Drive web explorer for project files, PDFs, notes, and direct drag-and-drop storage.</p>
+      </div>
+      <div class="card-btn">Browse Files →</div>
+    </a>
+  </div>
+
+  <!-- Smart TV Feature Callout -->
+  <div class="tv-section">
+    <div class="tv-icon">📺</div>
+    <div class="tv-text">
+      <h3>Smart TV & Living Room Experience</h3>
+      <p>Install the <strong>Jellyfin app</strong> on Android TV, Google TV, or FireTV Stick. Open the app to auto-detect this server and stream movies using your TV remote without typing complicated addresses!</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    Powered by Sago Automations • 100% Open-Source & Private
+  </div>
+
+</body>
+</html>

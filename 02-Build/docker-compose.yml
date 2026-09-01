@@ -1,5 +1,28 @@
 services:
   # ============================================================================
+  # 0. SAGO REVERSE PROXY & DASHBOARD (Standard Port 80 — NO PORT NUMBERS TO MEMORIZE)
+  # ============================================================================
+  # Allows accessing via:
+  # - http://<laptop-ip>/           -> Unified Sago Launchpad Dashboard
+  # - http://<laptop-ip>/photos     -> Immich Photos
+  # - http://<laptop-ip>/movies     -> Jellyfin Streaming
+  # - http://<laptop-ip>/files      -> FileBrowser Drive
+  # ============================================================================
+  gateway:
+    image: nginx:alpine
+    container_name: sago-gateway
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/nginx/html:/usr/share/nginx/html:ro
+    depends_on:
+      - filebrowser
+      - jellyfin
+      - immich-server
+
+  # ============================================================================
   # 1. FILEBROWSER — Private Web Google Drive
   # ============================================================================
   filebrowser:
@@ -17,7 +40,7 @@ services:
       - PGID=1000
 
   # ============================================================================
-  # 2. JELLYFIN — Private Netflix / OTT Streaming Server
+  # 2. JELLYFIN — Private Netflix / OTT Streaming Server (DLNA & Smart TV Enabled)
   # ============================================================================
   jellyfin:
     image: jellyfin/jellyfin:latest
@@ -25,6 +48,8 @@ services:
     restart: unless-stopped
     ports:
       - "8096:8096"
+      - "1900:1900/udp" # DLNA Auto-discovery on Smart TVs
+      - "7359:7359/udp" # Jellyfin Client auto-discovery
     volumes:
       - ./data/jellyfin/config:/config
       - ./data/jellyfin/cache:/cache
@@ -35,7 +60,7 @@ services:
       - PGID=1000
 
   # ============================================================================
-  # 3. IMMICH — Private Google Photos Alternative (AI Facial Recognition & Timeline)
+  # 3. IMMICH — Private Google Photos Alternative (AI Face Recognition & Timeline)
   # ============================================================================
   immich-server:
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}

@@ -1,7 +1,7 @@
 # 🚀 Sago 24/7 Home Server: The Complete 0-to-1 Blueprint
 
 > Turn any old laptop or PC into a 24/7 headless private cloud server with **Immich** (Google Photos), **Jellyfin** (Private Netflix), and **FileBrowser** (Google Drive).
-> Works across two tiers: **Tier 1 (Local 1Gbps Home WiFi)** and **Tier 2 (Worldwide 5G via Tailscale)**.
+> Features a **Zero-Port Unified Launchpad on Port 80**, **Smart TV Auto-Discovery**, **Local 1Gbps Home WiFi**, and **Worldwide 5G Access via Tailscale**.
 
 ---
 
@@ -11,9 +11,11 @@
 3. [Headless SSH Setup (Control from Your Main PC)](#3-headless-ssh-setup)
 4. [Docker Installation (Windows & Ubuntu)](#4-docker-installation)
 5. [1-Click Sago Stack Launch](#5-1-click-sago-stack-launch)
-6. [Tier 1: Local 1Gbps WiFi Setup (Zero Internet Data)](#6-tier-1-local-1gbps-wifi-setup)
-7. [Tier 2: Worldwide 5G Access via Tailscale](#7-tier-2-worldwide-5g-access-via-tailscale)
-8. [Next Steps: AI Agents & Custom Hosting](#8-next-steps-ai-agents--custom-hosting)
+6. [The Zero-Port Unified Launchpad (Port 80)](#6-the-zero-port-unified-launchpad-port-80)
+7. [Smart TV & Living Room Setup (Android TV / FireTV)](#7-smart-tv--living-room-setup)
+8. [Tier 1: Local 1Gbps WiFi Setup (Zero Internet Data)](#8-tier-1-local-1gbps-wifi-setup)
+9. [Tier 2: Worldwide 5G Access via Tailscale](#9-tier-2-worldwide-5g-access-via-tailscale)
+10. [Next Steps: 24/7 AI Agents & Business Bots](#10-next-steps-247-ai-agents--business-bots)
 
 ---
 
@@ -83,7 +85,6 @@ Open terminal/cmd on your main machine:
 ```bash
 ssh <username>@192.168.1.50
 ```
-*(Tip: You can also use **VS Code Remote - SSH** extension to open and edit files directly on the server).*
 
 ---
 
@@ -95,7 +96,6 @@ Run the official automated install:
 curl -fsSL https://get.docker.com | sh
 sudo usermod -aG docker $USER
 ```
-*(Log out and log back in for group changes to take effect).*
 
 ### On Windows:
 1. Download [Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/).
@@ -109,26 +109,44 @@ sudo usermod -aG docker $USER
 Once inside the server terminal:
 
 ```bash
-# Clone or navigate to the directory
 cd "/home/gokul/Business man/01-Experiments/2026-09-sago-home-server/02-Build"
-
-# Launch all 3 services
 ./setup.sh
 ```
 
-### Active Port Mappings:
-| Service | Purpose | Local Port |
-|---|---|---|
-| **Immich** | Google Photos alternative (AI face recognition) | `http://<laptop-ip>:2283` |
-| **Jellyfin** | Private Netflix / OTT 4K streaming | `http://<laptop-ip>:8096` |
-| **FileBrowser** | Web-based Google Drive file manager | `http://<laptop-ip>:8080` |
+---
+
+## 6. The Zero-Port Unified Launchpad (Port 80)
+
+No need for family members to memorize complicated port numbers (`:2283`, `:8096`, `:8080`).
+Simply open your browser and type:
+
+👉 **`http://<laptop-ip>`** (e.g. `http://192.168.1.50` or `http://localhost`)
+
+This opens the **Sago Launchpad Dashboard** with large visual buttons:
+- 📸 **Immich Photos**: AI face recognition, map view, mobile auto-sync.
+- 🎬 **Jellyfin Movies**: Private Netflix streaming in 4K.
+- 📁 **FileBrowser Drive**: Web Google Drive for all personal & work files.
 
 ---
 
-## 6. Tier 1: Local 1Gbps WiFi Setup
+## 7. Smart TV & Living Room Setup
+
+### Watching 4K Movies on Smart TV:
+1. Open the App Store on your **Android TV, Google TV, Samsung TV, or FireTV Stick**.
+2. Search and install **"Jellyfin"**.
+3. Open the app — it automatically scans your home WiFi and detects your server!
+4. Use your TV remote to browse movie posters, cast details, and play with subtitles in crystal-clear 4K.
+
+### Family Photo Slideshows on Big Screen:
+- Open Immich on your phone.
+- Tap the **Cast icon** (Chromecast / AirPlay / DLNA) to project high-resolution wedding and family photo albums directly onto your living room TV.
+
+---
+
+## 8. Tier 1: Local 1Gbps WiFi Setup
 
 When you are at home on the same WiFi network:
-- Access using the local IP: `http://192.168.1.50:2283`
+- Access via: `http://192.168.1.50`
 - **Why this is unbeatable:**
   1. **1Gbps Transfer Speeds**: 4K movies seek and play instantly with zero buffering.
   2. **Zero Internet Consumption**: Data travels directly between your phone and laptop over the local router — no broadband GB quota is used.
@@ -136,7 +154,7 @@ When you are at home on the same WiFi network:
 
 ---
 
-## 7. Tier 2: Worldwide 5G Access via Tailscale
+## 9. Tier 2: Worldwide 5G Access via Tailscale
 
 To access your server while outside your home (bypassing ISP CGNAT without router port forwarding):
 
@@ -153,13 +171,13 @@ Log in using your Google or GitHub account. Note your Tailscale IP (e.g. `100.80
 3. Toggle the VPN switch to **Connected**.
 
 ### 3. Open Services via Tailscale IP:
+- Dashboard on 5G: `http://100.80.20.10`
 - Photos on 5G: `http://100.80.20.10:2283`
 - Movies on 5G: `http://100.80.20.10:8096`
-- Files on 5G: `http://100.80.20.10:8080`
 
 ---
 
-## 8. Next Steps: AI Agents & Custom Hosting
+## 10. Next Steps: 24/7 AI Agents & Business Bots
 
 Your 24/7 server is now a launchpad for advanced automation:
 - **Autonomous Coding Agents**: Run background agents (Hermes, Codex) for overnight research and tasks.
