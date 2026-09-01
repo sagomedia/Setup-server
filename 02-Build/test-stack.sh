@@ -17,7 +17,6 @@ check_service() {
     local expected="$3"
     
     echo -n "🔍 Testing $name ($url)... "
-    # Follow redirects (-L) and capture final HTTP response code
     STATUS=$(curl -s -L -o /dev/null -w "%{http_code}" "$url" --connect-timeout 8 || echo "000")
     
     if [[ "$STATUS" =~ ^($expected)$ ]]; then
@@ -32,8 +31,14 @@ check_service() {
 # 1. Port 80 Gateway
 check_service "Sago Launchpad (Port 80)" "http://localhost" "200|302|301"
 
-# 2. FileBrowser
-check_service "FileBrowser Drive (Port 8080)" "http://localhost:8080" "200|302|301"
+# 2. FileBrowser (checking 8082 first, fallback 8080)
+FB_PORT="8082"
+if ! curl -s -o /dev/null --connect-timeout 2 "http://localhost:8082" 2>/dev/null; then
+    if curl -s -o /dev/null --connect-timeout 2 "http://localhost:8080" 2>/dev/null; then
+        FB_PORT="8080"
+    fi
+fi
+check_service "FileBrowser Drive (Port $FB_PORT)" "http://localhost:$FB_PORT" "200|302|301"
 
 # 3. Jellyfin
 check_service "Jellyfin Streaming (Port 8096)" "http://localhost:8096" "200|302|301"
