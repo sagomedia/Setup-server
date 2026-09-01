@@ -72,6 +72,7 @@
       flex-direction: column;
       justify-content: space-between;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
     }
     .card:hover {
       transform: translateY(-4px);
@@ -145,7 +146,7 @@
 
   <div class="grid">
     <!-- Immich Photos -->
-    <a href=":2283" class="card" target="_blank">
+    <div class="card" onclick="openService(2283)">
       <div>
         <div class="card-icon">📸</div>
         <div class="card-title">
@@ -155,10 +156,10 @@
         <p class="card-desc">Private Google Photos alternative with AI face recognition, map timeline, and mobile auto-backup.</p>
       </div>
       <div class="card-btn">Open Photos →</div>
-    </a>
+    </div>
 
     <!-- Jellyfin OTT -->
-    <a href=":8096" class="card" target="_blank">
+    <div class="card" onclick="openService(8096)">
       <div>
         <div class="card-icon">🎬</div>
         <div class="card-title">
@@ -168,10 +169,10 @@
         <p class="card-desc">Private Netflix streaming in 4K directly to your TV, iPad, and phone with zero buffering.</p>
       </div>
       <div class="card-btn">Stream Movies →</div>
-    </a>
+    </div>
 
     <!-- FileBrowser Drive -->
-    <a href=":8082" class="card" target="_blank">
+    <div class="card" onclick="openService(8082)">
       <div>
         <div class="card-icon">📁</div>
         <div class="card-title">
@@ -181,7 +182,7 @@
         <p class="card-desc">Personal Google Drive web explorer for project files, PDFs, notes, and direct drag-and-drop storage.</p>
       </div>
       <div class="card-btn">Browse Files →</div>
-    </a>
+    </div>
   </div>
 
   <!-- Smart TV Feature Callout -->
@@ -196,6 +197,14 @@
   <div class="footer">
     Powered by Sago Automations • 100% Open-Source & Private
   </div>
+
+  <script>
+    function openService(port) {
+      const hostname = window.location.hostname || 'localhost';
+      const url = 'http://' + hostname + ':' + port;
+      window.open(url, '_blank');
+    }
+  </script>
 
 </body>
 </html>
