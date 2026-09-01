@@ -46,18 +46,20 @@ echo "📁 Initializing storage volumes and setting permissions..."
 mkdir -p data config/nginx/html config/nginx
 docker run --rm -v "$DIR/data:/data" alpine sh -c "mkdir -p /data/files /data/filebrowser /data/jellyfin/config /data/jellyfin/cache /data/media/movies /data/media/shows /data/immich/photos /data/immich/postgres /data/immich/model-cache && chmod -R 777 /data" 2>/dev/null || chmod -R 777 data 2>/dev/null || true
 
-# 5. Pre-seed FileBrowser admin credentials (sagoadmin1234)
-if [ ! -f data/filebrowser/filebrowser.db ]; then
-    echo "🔑 Pre-configuring FileBrowser admin credentials..."
-    docker run --rm -v "$DIR/data/filebrowser:/database" filebrowser/filebrowser users add admin sagoadmin1234 --perm.admin -d /database/filebrowser.db 2>/dev/null || true
-fi
-
-# 6. Launch containers
-echo "🐳 Launching Home Server Stack ($DOCKER_CMD up -d)..."
+# 5. Stop containers before database operations
+echo "🛑 Stopping containers for clean initialization..."
 $DOCKER_CMD down --remove-orphans 2>/dev/null || true
+
+# 6. Ensure FileBrowser admin password is set to sagoadmin1234
+echo "🔑 Pre-configuring FileBrowser admin credentials (admin / sagoadmin1234)..."
+docker run --rm -v "$DIR/data/filebrowser:/database" filebrowser/filebrowser users add admin sagoadmin1234 --perm.admin -d /database/filebrowser.db 2>/dev/null || \
+docker run --rm -v "$DIR/data/filebrowser:/database" filebrowser/filebrowser users update admin --password sagoadmin1234 -d /database/filebrowser.db 2>/dev/null || true
+
+# 7. Launch containers
+echo "🐳 Launching Home Server Stack ($DOCKER_CMD up -d)..."
 $DOCKER_CMD up -d
 
-# 7. Get Local IP Address
+# 8. Get Local IP Address
 LOCAL_IP=$(hostname -I 2>/dev/null | awk '{print $1}' || echo "localhost")
 
 echo ""
