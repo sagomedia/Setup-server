@@ -1,36 +1,42 @@
 #!/usr/bin/env bash
 set -e
 
-# Sago Automations — 1-Click Home Server Setup
+# ==============================================================================
+# SAGO AUTOMATIONS — 1-CLICK 24/7 HOME SERVER (FRESH MACHINE BOOTSTRAP)
+# ==============================================================================
+
 echo "========================================================="
-echo " 🚀 SAGO AUTOMATIONS — 24/7 HOME SERVER 1-CLICK SETUP"
+echo " 🚀 SAGO AUTOMATIONS — 24/7 HOME SERVER ZERO-DEPENDENCY SETUP"
 echo "========================================================="
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DIR"
 
-# 1. Check Docker & Compose
+# 1. Check and Auto-Install Docker if missing (Ubuntu/Debian)
 if ! command -v docker &> /dev/null; then
-    echo "❌ Docker is not installed. Install Docker first:"
-    echo "   curl -fsSL https://get.docker.com | sh"
-    exit 1
+    echo "⚠️ Docker is not installed on this machine."
+    echo "⚙️ Auto-installing official Docker engine..."
+    curl -fsSL https://get.docker.com | sh
+    sudo usermod -aG docker "$USER" 2>/dev/null || true
+    echo "✅ Docker installed successfully."
+else
+    echo "✅ Docker is already installed."
 fi
 
-echo "✅ Docker & Compose detected."
-
-# 2. Setup .env file
+# 2. Setup .env configuration
 if [ ! -f .env ]; then
-    echo "⚙️ Creating .env configuration from template..."
+    echo "⚙️ Creating .env configuration from .env.example..."
     cp .env.example .env
 fi
 
-# 3. Create required data directories
-echo "📁 Creating persistent storage directories..."
+# 3. Create persistent directories
+echo "📁 Pre-creating persistent storage directories..."
 mkdir -p data/files
 mkdir -p data/filebrowser
 mkdir -p data/jellyfin/config data/jellyfin/cache
 mkdir -p data/media/movies data/media/shows
 mkdir -p data/immich/photos data/immich/postgres data/immich/model-cache
+mkdir -p config/nginx/html config/nginx
 
 # 4. Pull and launch containers
 echo "🐳 Launching Home Server Stack via Docker Compose..."
@@ -42,13 +48,15 @@ LOCAL_IP=$(hostname -I 2>/dev/null | awk '{print $1}' || echo "localhost")
 
 echo ""
 echo "========================================================="
-echo " 🎉 ALL SERVICES ARE NOW LIVE & RUNNING 24/7!"
+echo " 🎉 CONGRATULATIONS! YOUR HOME SERVER IS LIVE & RUNNING!"
 echo "========================================================="
 echo ""
-echo " 📸 Immich (Google Photos)   : http://${LOCAL_IP}:2283"
-echo " 🎬 Jellyfin (Private OTT)   : http://${LOCAL_IP}:8096"
-echo " 📁 FileBrowser (Web Drive)  : http://${LOCAL_IP}:8080"
+echo " 🌐 Sago Launchpad (Dashboard) : http://${LOCAL_IP}"
+echo " 📸 Immich Photos              : http://${LOCAL_IP}:2283"
+echo " 🎬 Jellyfin Movies (Smart TV) : http://${LOCAL_IP}:8096"
+echo " 📁 FileBrowser Drive          : http://${LOCAL_IP}:8080"
 echo ""
-echo " 💡 Default FileBrowser login : admin / admin (Change immediately)"
-echo " 💡 For remote access outside home, install Tailscale (see tailscale-guide.md)"
+echo " 💡 Default FileBrowser Login : admin / admin"
+echo " 💡 Smart TV: Install Jellyfin app on TV — auto-detects this server!"
+echo " 💡 Remote 5G Access: Run 'sudo tailscale up' (see tailscale-guide.md)"
 echo "========================================================="
