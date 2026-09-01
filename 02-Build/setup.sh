@@ -42,7 +42,7 @@ if [ ! -f .env ]; then
     cp .env.example .env
 fi
 
-# 4. Create persistent directories
+# 4. Create persistent directories with FULL permissions (Required for Immich node:1000 user)
 echo "📁 Pre-creating persistent storage directories..."
 mkdir -p data/files
 mkdir -p data/filebrowser
@@ -51,7 +51,8 @@ mkdir -p data/media/movies data/media/shows
 mkdir -p data/immich/photos data/immich/postgres data/immich/model-cache
 mkdir -p config/nginx/html config/nginx
 
-sudo chown -R "$USER:$USER" data 2>/dev/null || true
+# Ensure all containers have full read/write access
+sudo chmod -R 777 data 2>/dev/null || chmod -R 777 data 2>/dev/null || true
 
 # 5. Clean orphan containers and launch
 echo "🐳 Launching Home Server Stack ($DOCKER_CMD up -d)..."
@@ -72,7 +73,7 @@ echo " 📸 Immich Photos              : http://${LOCAL_IP}:2283"
 echo " 🎬 Jellyfin Movies (Smart TV) : http://${LOCAL_IP}:8096"
 echo " 📁 FileBrowser Drive          : http://${LOCAL_IP}:8082"
 echo ""
-echo " 💡 FileBrowser Login Credentials:"
+echo " 💡 FileBrowser Default Login:"
 echo "    • Username : admin"
 echo "    • Password : admin"
 echo ""
