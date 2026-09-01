@@ -2,34 +2,48 @@
 set -e
 
 # ==============================================================================
-# SAGO AUTOMATIONS — 1-CLICK 24/7 HOME SERVER (FRESH MACHINE BOOTSTRAP)
+# SAGO AUTOMATIONS — 1-CLICK 24/7 HOME SERVER (ZERO-DEPENDENCY SETUP)
 # ==============================================================================
 
 echo "========================================================="
-echo " 🚀 SAGO AUTOMATIONS — 24/7 HOME SERVER ZERO-DEPENDENCY SETUP"
+echo " 🚀 SAGO AUTOMATIONS — 24/7 HOME SERVER SETUP"
 echo "========================================================="
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DIR"
 
-# 1. Check and Auto-Install Docker if missing (Ubuntu/Debian)
+# 1. Check and Auto-Install Docker if missing
 if ! command -v docker &> /dev/null; then
-    echo "⚠️ Docker is not installed on this machine."
-    echo "⚙️ Auto-installing official Docker engine..."
+    echo "⚙️ Docker not found. Auto-installing official Docker engine..."
     curl -fsSL https://get.docker.com | sh
     sudo usermod -aG docker "$USER" 2>/dev/null || true
-    echo "✅ Docker installed successfully."
+    echo "✅ Docker installed."
 else
     echo "✅ Docker is already installed."
 fi
 
-# 2. Setup .env configuration
+# 2. Fix Docker Socket Permissions (Prevents 'permission denied on docker.sock')
+if ! docker ps &>/dev/null; then
+    echo "🔑 Fixing Docker socket permissions for user $USER..."
+    sudo usermod -aG docker "$USER" 2>/dev/null || true
+    sudo chmod 666 /var/run/docker.sock 2>/dev/null || true
+fi
+
+# Determine if we should use 'docker compose' or 'sudo docker compose'
+DOCKER_CMD="docker compose"
+if ! docker compose ps &>/dev/null; then
+    if sudo docker compose ps &>/dev/null; then
+        DOCKER_CMD="sudo docker compose"
+    fi
+fi
+
+# 3. Setup .env configuration
 if [ ! -f .env ]; then
     echo "⚙️ Creating .env configuration from .env.example..."
     cp .env.example .env
 fi
 
-# 3. Create persistent directories
+# 4. Create persistent directories
 echo "📁 Pre-creating persistent storage directories..."
 mkdir -p data/files
 mkdir -p data/filebrowser
@@ -38,17 +52,20 @@ mkdir -p data/media/movies data/media/shows
 mkdir -p data/immich/photos data/immich/postgres data/immich/model-cache
 mkdir -p config/nginx/html config/nginx
 
-# 4. Pull and launch containers
-echo "🐳 Launching Home Server Stack via Docker Compose..."
-docker compose pull
-docker compose up -d
+# Ensure correct ownership
+sudo chown -R "$USER:$USER" data 2>/dev/null || true
 
-# 5. Get Local IP Address
+# 5. Pull and launch containers
+echo "🐳 Launching Home Server Stack ($DOCKER_CMD up -d)..."
+$DOCKER_CMD pull
+$DOCKER_CMD up -d
+
+# 6. Get Local IP Address
 LOCAL_IP=$(hostname -I 2>/dev/null | awk '{print $1}' || echo "localhost")
 
 echo ""
 echo "========================================================="
-echo " 🎉 CONGRATULATIONS! YOUR HOME SERVER IS LIVE & RUNNING!"
+echo " 🎉 ALL SERVICES ARE NOW LIVE & RUNNING 24/7!"
 echo "========================================================="
 echo ""
 echo " 🌐 Sago Launchpad (Dashboard) : http://${LOCAL_IP}"
