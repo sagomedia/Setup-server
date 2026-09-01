@@ -4,7 +4,6 @@ services:
   # ============================================================================
   gateway:
     image: nginx:alpine
-    container_name: sago-gateway
     restart: unless-stopped
     ports:
       - "80:80"
@@ -17,19 +16,19 @@ services:
       - jellyfin
 
   # ============================================================================
-  # 1. FILEBROWSER — Private Web Google Drive (Port 8082)
+  # 1. FILEBROWSER — Private Web Google Drive (Port 8088)
   # ============================================================================
   filebrowser:
     image: filebrowser/filebrowser:latest
-    container_name: sago-filebrowser
     restart: unless-stopped
     ports:
-      - "${FILEBROWSER_PORT:-8082}:80"
+      - "8088:80"
     volumes:
       - ${FILEBROWSER_DATA:-./data/files}:/srv
-      - ./data/filebrowser/database.db:/database.db
-      - ./data/filebrowser/settings.json:/.filebrowser.json
+      - ./data/filebrowser:/database
     environment:
+      - FB_DATABASE=/database/filebrowser.db
+      - FB_ROOT=/srv
       - PUID=1000
       - PGID=1000
 
@@ -38,7 +37,6 @@ services:
   # ============================================================================
   jellyfin:
     image: jellyfin/jellyfin:latest
-    container_name: sago-jellyfin
     restart: unless-stopped
     ports:
       - "8096:8096"
@@ -54,11 +52,10 @@ services:
       - PGID=1000
 
   # ============================================================================
-  # 3. IMMICH — Private Google Photos Alternative (AI Facial Recognition)
+  # 3. IMMICH — Private Google Photos Alternative (Official Latest Stack)
   # ============================================================================
   immich-server:
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
-    container_name: immich_server
     restart: unless-stopped
     ports:
       - "2283:2283"
@@ -71,6 +68,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-sago_home_server_supersecret}
       - DB_DATABASE_NAME=immich
       - REDIS_HOSTNAME=redis
+      - IMMICH_MACHINE_LEARNING_URL=http://immich-machine-learning:3003
     env_file:
       - .env
     depends_on:
@@ -79,7 +77,6 @@ services:
 
   immich-machine-learning:
     image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
-    container_name: immich_machine_learning
     restart: unless-stopped
     volumes:
       - ./data/immich/model-cache:/cache
@@ -87,18 +84,17 @@ services:
       - .env
 
   redis:
-    container_name: immich_redis
-    image: redis:6.2-alpine
+    image: docker.io/valkey/valkey:8-alpine
     restart: unless-stopped
 
   database:
-    container_name: immich_postgres
-    image: tensorchord/pgvecto-rs:pg14-v0.2.0
+    image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0
     restart: unless-stopped
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD:-sago_home_server_supersecret}
       POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_DB: ${DB_DATABASE_NAME:-immich}
+      POSTGRES_INITDB_ARGS: '--data-checksums'
     volumes:
       - ${DB_DATA_LOCATION:-./data/immich/postgres}:/var/lib/postgresql/data
-    shm_size: 128mb
+    shm_size: 512mb

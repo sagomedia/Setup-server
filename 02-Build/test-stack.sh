@@ -37,8 +37,8 @@ if ! curl -s -o /dev/null --connect-timeout 2 "http://localhost" 2>/dev/null; th
 fi
 check_service "Sago Launchpad ($GW_URL)" "$GW_URL" "200|302|301"
 
-# 2. FileBrowser Drive (Port 8082)
-check_service "FileBrowser Drive (Port 8082)" "http://localhost:8082" "200|302|301"
+# 2. FileBrowser Drive (Port 8088)
+check_service "FileBrowser Drive (Port 8088)" "http://localhost:8088" "200|302|301|401"
 
 # 3. Jellyfin Streaming (Port 8096)
 check_service "Jellyfin Streaming (Port 8096)" "http://localhost:8096" "200|302|301"

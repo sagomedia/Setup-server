@@ -25,7 +25,6 @@ fi
 # 2. Fix Docker Socket Permissions
 if ! docker ps &>/dev/null; then
     echo "🔑 Fixing Docker socket permissions for user $USER..."
-    sudo usermod -aG docker "$USER" 2>/dev/null || true
     sudo chmod 666 /var/run/docker.sock 2>/dev/null || true
 fi
 
@@ -42,21 +41,14 @@ if [ ! -f .env ]; then
     cp .env.example .env
 fi
 
-# 4. Create persistent directories with full permissions
-echo "📁 Pre-creating persistent storage directories..."
-mkdir -p data/files
-mkdir -p data/filebrowser
-mkdir -p data/jellyfin/config data/jellyfin/cache
-mkdir -p data/media/movies data/media/shows
-mkdir -p data/immich/photos data/immich/postgres data/immich/model-cache
-mkdir -p config/nginx/html config/nginx
+# 4. Clean & Initialize persistent directories via Docker (bypasses sudo password prompts)
+echo "📁 Initializing storage volumes and setting full permissions..."
+mkdir -p data config/nginx/html config/nginx
+docker run --rm -v "$DIR/data:/data" alpine sh -c "mkdir -p /data/files /data/filebrowser /data/jellyfin/config /data/jellyfin/cache /data/media/movies /data/media/shows /data/immich/photos /data/immich/postgres /data/immich/model-cache && chmod -R 777 /data" 2>/dev/null || chmod -R 777 data 2>/dev/null || true
 
-sudo chmod -R 777 data 2>/dev/null || chmod -R 777 data 2>/dev/null || true
-
-# 5. Launch containers (pull is optional/non-blocking)
+# 5. Stop stale containers and launch
 echo "🐳 Launching Home Server Stack ($DOCKER_CMD up -d)..."
 $DOCKER_CMD down --remove-orphans 2>/dev/null || true
-$DOCKER_CMD pull 2>/dev/null || true
 $DOCKER_CMD up -d
 
 # 6. Get Local IP Address

@@ -3,10 +3,10 @@
 Turn any old/fresh PC or laptop into an unlimited, 24/7 private cloud for **₹0 monthly fees**.
 
 ## 📦 What's Included
-1. **Sago Launchpad Dashboard (Port 80)** — Unified zero-port landing page.
+1. **Sago Launchpad Dashboard (Port 80 & 8000)** — Unified zero-port landing page with dynamic routing.
 2. **Immich (Port 2283)** — Google Photos alternative with AI face recognition & mobile auto-sync.
 3. **Jellyfin (Port 8096)** — Private Netflix/OTT media server with Smart TV auto-discovery (DLNA).
-4. **FileBrowser (Port 8080)** — Web-based Google Drive file manager.
+4. **FileBrowser (Port 8088)** — Web-based Google Drive file manager.
 5. **Tailscale (5G Mesh)** — Access from anywhere in the world without port forwarding.
 
 ---
@@ -21,8 +21,6 @@ cd Setup-server/02-Build
 chmod +x setup.sh
 ./setup.sh
 ```
-
-*The script automatically checks if Docker is installed, installs official Docker if missing, sets up directories, and launches all containers.*
 
 ---
 
@@ -48,7 +46,7 @@ Open your browser and navigate to:
 | 🌐 **Sago Launchpad** | `http://<laptop-ip>` | Unified home portal (No port numbers needed) |
 | 📸 **Immich Photos** | `http://<laptop-ip>:2283` | AI Face recognition, map timeline, photo sync |
 | 🎬 **Jellyfin Movies** | `http://<laptop-ip>:8096` | 4K Private streaming + Smart TV auto-connect |
-| 📁 **FileBrowser Drive** | `http://<laptop-ip>:8080` | Web file drive (Default: `admin` / `admin`) |
+| 📁 **FileBrowser Drive** | `http://<laptop-ip>:8088` | Web file drive (Default: `admin` / `admin`) |
 
 ---
 
