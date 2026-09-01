@@ -1,6 +1,7 @@
 # 🚀 Sago 24/7 Home Server: The Complete 0-to-1 Blueprint
 
 > Turn any old laptop or PC into a 24/7 headless private cloud server with **Immich** (Google Photos), **Jellyfin** (Private Netflix), and **FileBrowser** (Google Drive).
+> Official GitHub: `https://github.com/sagomedia/Setup-server.git`
 > Features a **Zero-Port Unified Launchpad on Port 80**, **Smart TV Auto-Discovery**, **Local 1Gbps Home WiFi**, and **Worldwide 5G Access via Tailscale**.
 
 ---
@@ -109,7 +110,9 @@ sudo usermod -aG docker $USER
 Once inside the server terminal:
 
 ```bash
-cd "/home/gokul/Business man/01-Experiments/2026-09-sago-home-server/02-Build"
+git clone https://github.com/sagomedia/Setup-server.git
+cd Setup-server/02-Build
+chmod +x setup.sh
 ./setup.sh
 ```
 
