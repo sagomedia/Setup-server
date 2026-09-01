@@ -54,7 +54,7 @@ services:
       - PGID=1000
 
   # ============================================================================
-  # 3. IMMICH — Private Google Photos Alternative
+  # 3. IMMICH — Private Google Photos Alternative (AI Facial Recognition)
   # ============================================================================
   immich-server:
     image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
@@ -99,7 +99,6 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD:-sago_home_server_supersecret}
       POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_DB: ${DB_DATABASE_NAME:-immich}
-      POSTGRES_INITDB_ARGS: '--data-checksums'
     volumes:
       - ${DB_DATA_LOCATION:-./data/immich/postgres}:/var/lib/postgresql/data
     shm_size: 128mb

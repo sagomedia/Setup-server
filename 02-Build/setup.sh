@@ -22,14 +22,13 @@ else
     echo "✅ Docker is already installed."
 fi
 
-# 2. Fix Docker Socket Permissions (Prevents 'permission denied on docker.sock')
+# 2. Fix Docker Socket Permissions
 if ! docker ps &>/dev/null; then
     echo "🔑 Fixing Docker socket permissions for user $USER..."
     sudo usermod -aG docker "$USER" 2>/dev/null || true
     sudo chmod 666 /var/run/docker.sock 2>/dev/null || true
 fi
 
-# Determine if we should use 'docker compose' or 'sudo docker compose'
 DOCKER_CMD="docker compose"
 if ! docker compose ps &>/dev/null; then
     if sudo docker compose ps &>/dev/null; then
@@ -52,11 +51,11 @@ mkdir -p data/media/movies data/media/shows
 mkdir -p data/immich/photos data/immich/postgres data/immich/model-cache
 mkdir -p config/nginx/html config/nginx
 
-# Ensure correct ownership
 sudo chown -R "$USER:$USER" data 2>/dev/null || true
 
-# 5. Pull and launch containers
+# 5. Clean orphan containers and launch
 echo "🐳 Launching Home Server Stack ($DOCKER_CMD up -d)..."
+$DOCKER_CMD down --remove-orphans 2>/dev/null || true
 $DOCKER_CMD pull
 $DOCKER_CMD up -d
 
@@ -71,9 +70,12 @@ echo ""
 echo " 🌐 Sago Launchpad (Dashboard) : http://${LOCAL_IP}"
 echo " 📸 Immich Photos              : http://${LOCAL_IP}:2283"
 echo " 🎬 Jellyfin Movies (Smart TV) : http://${LOCAL_IP}:8096"
-echo " 📁 FileBrowser Drive          : http://${LOCAL_IP}:8080"
+echo " 📁 FileBrowser Drive          : http://${LOCAL_IP}:8082"
 echo ""
-echo " 💡 Default FileBrowser Login : admin / admin"
+echo " 💡 FileBrowser Login Credentials:"
+echo "    • Username : admin"
+echo "    • Password : admin"
+echo ""
 echo " 💡 Smart TV: Install Jellyfin app on TV — auto-detects this server!"
 echo " 💡 Remote 5G Access: Run 'sudo tailscale up' (see tailscale-guide.md)"
 echo "========================================================="
