@@ -1,13 +1,12 @@
 services:
   # ============================================================================
-  # 0. SAGO REVERSE PROXY & DASHBOARD (Port 80 & Port 8000)
+  # 0. SAGO REVERSE PROXY & DASHBOARD (Port 8000 / Standard Web Access)
   # ============================================================================
   gateway:
     image: nginx:alpine
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "8000:80"
+      - "${GATEWAY_PORT:-8000}:80"
     volumes:
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./config/nginx/html:/usr/share/nginx/html:ro
@@ -77,6 +76,7 @@ services:
 
   immich-machine-learning:
     image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
+    container_name: immich_machine_learning
     restart: unless-stopped
     volumes:
       - ./data/immich/model-cache:/cache
