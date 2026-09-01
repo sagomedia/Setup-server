@@ -1,0 +1,78 @@
+services:
+  # ============================================================================
+  # 1. FILEBROWSER — Private Web Google Drive
+  # ============================================================================
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: sago-filebrowser
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ${FILEBROWSER_DATA:-./data/files}:/srv
+      - ./data/filebrowser/database.db:/database.db
+      - ./data/filebrowser/settings.json:/.filebrowser.json
+    environment:
+      - PUID=1000
+      - PGID=1000
+
+  # ============================================================================
+  # 2. JELLYFIN — Private Netflix / OTT Streaming Server
+  # ============================================================================
+  jellyfin:
+    image: jellyfin/jellyfin:latest
+    container_name: sago-jellyfin
+    restart: unless-stopped
+    ports:
+      - "8096:8096"
+    volumes:
+      - ./data/jellyfin/config:/config
+      - ./data/jellyfin/cache:/cache
+      - ${MEDIA_MOVIES:-./data/media/movies}:/media/movies
+      - ${MEDIA_SHOWS:-./data/media/shows}:/media/shows
+    environment:
+      - PUID=1000
+      - PGID=1000
+
+  # ============================================================================
+  # 3. IMMICH — Private Google Photos Alternative (AI Facial Recognition & Timeline)
+  # ============================================================================
+  immich-server:
+    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    container_name: sago-immich-server
+    restart: unless-stopped
+    ports:
+      - "2283:2283"
+    volumes:
+      - ${UPLOAD_LOCATION:-./data/immich/photos}:/usr/src/app/upload
+      - /etc/localtime:/etc/localtime:ro
+    env_file:
+      - .env
+    depends_on:
+      - immich-redis
+      - immich-postgres
+
+  immich-machine-learning:
+    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
+    container_name: sago-immich-ml
+    restart: unless-stopped
+    volumes:
+      - ./data/immich/model-cache:/cache
+    env_file:
+      - .env
+
+  immich-redis:
+    image: redis:6.2-alpine
+    container_name: sago-immich-redis
+    restart: unless-stopped
+
+  immich-postgres:
+    image: tensorchord/pgvecto-rs:pg14-v0.2.0
+    container_name: sago-immich-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-sago_home_server_supersecret}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_DB: ${DB_DATABASE_NAME:-immich}
+    volumes:
+      - ${DB_DATA_LOCATION:-./data/immich/postgres}:/var/lib/postgresql/data

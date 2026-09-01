@@ -1,0 +1,46 @@
+# SAGO Standard .gitignore (Experiments)
+
+# Environment & Secrets (NEVER COMMIT)
+.env
+.env.*
+!.env.example
+secrets/
+*.pem
+*.key
+credentials.json
+
+# Dependencies & Environments
+.venv/
+venv/
+env/
+node_modules/
+__pycache__/
+*.pyc
+
+# Local Data & SQLite Databases
+*.db
+*.sqlite
+*.sqlite3
+data/*.db
+data/*.sqlite
+
+# Large Media & Client Exports
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.mp3
+*.wav
+*.m4a
+*.tar
+*.tar.gz
+*.zip
+*.rar
+*.7z
+
+# OS & Editor artifacts
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
