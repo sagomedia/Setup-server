@@ -42,7 +42,7 @@ if [ ! -f .env ]; then
     cp .env.example .env
 fi
 
-# 4. Create persistent directories with FULL permissions (Required for Immich node:1000 user)
+# 4. Create persistent directories with full permissions
 echo "📁 Pre-creating persistent storage directories..."
 mkdir -p data/files
 mkdir -p data/filebrowser
@@ -51,13 +51,12 @@ mkdir -p data/media/movies data/media/shows
 mkdir -p data/immich/photos data/immich/postgres data/immich/model-cache
 mkdir -p config/nginx/html config/nginx
 
-# Ensure all containers have full read/write access
 sudo chmod -R 777 data 2>/dev/null || chmod -R 777 data 2>/dev/null || true
 
-# 5. Clean orphan containers and launch
+# 5. Launch containers (pull is optional/non-blocking)
 echo "🐳 Launching Home Server Stack ($DOCKER_CMD up -d)..."
 $DOCKER_CMD down --remove-orphans 2>/dev/null || true
-$DOCKER_CMD pull
+$DOCKER_CMD pull 2>/dev/null || true
 $DOCKER_CMD up -d
 
 # 6. Get Local IP Address
