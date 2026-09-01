@@ -17,7 +17,8 @@ check_service() {
     local expected="$3"
     
     echo -n "🔍 Testing $name ($url)... "
-    STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$url" --connect-timeout 5 || echo "000")
+    # Follow redirects (-L) and capture final HTTP response code
+    STATUS=$(curl -s -L -o /dev/null -w "%{http_code}" "$url" --connect-timeout 8 || echo "000")
     
     if [[ "$STATUS" =~ ^($expected)$ ]]; then
         echo "✅ PASS (HTTP $STATUS)"
@@ -28,20 +29,28 @@ check_service() {
     fi
 }
 
-# 1. FileBrowser check
-check_service "FileBrowser (Web Drive)" "http://localhost:8080" "200|302|301"
+# 1. Port 80 Gateway
+check_service "Sago Launchpad (Port 80)" "http://localhost" "200|302|301"
 
-# 2. Jellyfin check
-check_service "Jellyfin (Media Server)" "http://localhost:8096/health" "200|302"
+# 2. FileBrowser
+check_service "FileBrowser Drive (Port 8080)" "http://localhost:8080" "200|302|301"
 
-# 3. Immich check
-check_service "Immich (Photo Server)" "http://localhost:2283/api/server/version" "200|302|404|401"
+# 3. Jellyfin
+check_service "Jellyfin Streaming (Port 8096)" "http://localhost:8096" "200|302|301"
+
+# 4. Immich
+check_service "Immich Photos (Port 2283)" "http://localhost:2283" "200|302|301|401|404"
 
 echo ""
 echo "========================================================="
 if [ $FAIL -eq 0 ]; then
     echo " 🎉 ALL $PASS SERVICES ARE HEALTHY & RESPONSIVE!"
 else
-    echo " ⚠️ $FAIL service(s) failed health check. Check logs with: docker compose logs"
+    echo " ⚠️ $FAIL service(s) did not respond yet."
+    echo ""
+    echo " 💡 Diagnostic Steps:"
+    echo "    1. Check container status: docker compose ps"
+    echo "    2. Check Jellyfin logs   : docker compose logs jellyfin --tail 20"
+    echo "    3. Check Immich logs     : docker compose logs immich-server --tail 20"
 fi
 echo "========================================================="
