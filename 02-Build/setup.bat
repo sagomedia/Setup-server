@@ -52,11 +52,11 @@ REM 5. Launch containers
 echo [5/5] Launching Home Server Containers...
 docker compose up -d
 
-REM 6. Verify Immich Database Initialization
-echo [INFO] Verifying Immich database initialization...
+REM 6. Verify and Ensure Immich Database Exists in PostgreSQL
+echo [INFO] Verifying Immich database readiness...
 timeout /t 3 >nul
-docker compose exec database psql -U postgres -c "CREATE DATABASE immich;" >nul 2>&1
-docker compose exec database sh -c "echo 'host all all 0.0.0.0/0 trust' >> /var/lib/postgresql/data/pg_hba.conf && psql -U postgres -c 'SELECT pg_reload_conf();'" >nul 2>&1
+docker compose exec -T database psql -U postgres -c "CREATE DATABASE immich;" >nul 2>&1
+docker compose exec -T database sh -c "echo 'host all all all trust' >> /var/lib/postgresql/data/pg_hba.conf && psql -U postgres -c 'SELECT pg_reload_conf();'" >nul 2>&1
 
 REM Detect Local IP on Windows
 set LOCAL_IP=localhost

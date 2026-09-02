@@ -12,7 +12,7 @@ services:
       - ./config/nginx/html:/usr/share/nginx/html:ro
 
   # ============================================================================
-  # 1. FILEBROWSER — Private Web Drive & Media Uploader (Port 8088)
+  # 1. FILEBROWSER — Web File & Movie Manager (Port 8088)
   # ============================================================================
   filebrowser:
     image: filebrowser/filebrowser:latest
@@ -106,9 +106,9 @@ services:
     volumes:
       - ${DB_DATA_LOCATION:-./data/immich/postgres}:/var/lib/postgresql/data
     healthcheck:
-      test: pg_isready --dbname="$${POSTGRES_DB:-immich}" --username="$${POSTGRES_USER:-postgres}" || exit 1
+      test: pg_isready -U postgres || exit 1
       interval: 3s
       timeout: 3s
       retries: 30
-      start_period: 3s
+      start_period: 2s
     shm_size: 512mb

@@ -59,11 +59,16 @@ docker run --rm -v "$DIR/data/filebrowser:/database" filebrowser/filebrowser use
 echo "🐳 Launching Home Server Stack ($DOCKER_CMD up -d)..."
 $DOCKER_CMD up -d
 
-# 8. Ensure PostgreSQL has the immich database & proper permissions
+# 8. Ensure PostgreSQL database is initialized
 echo "🗄️ Verifying Immich database initialization..."
-sleep 3
-$DOCKER_CMD exec database psql -U postgres -c "CREATE DATABASE immich;" 2>/dev/null || true
-$DOCKER_CMD exec database sh -c 'echo "host all all 0.0.0.0/0 trust" >> /var/lib/postgresql/data/pg_hba.conf && psql -U postgres -c "SELECT pg_reload_conf();"' 2>/dev/null || true
+for i in {1..15}; do
+    if $DOCKER_CMD exec -T database pg_isready -U postgres &>/dev/null; then
+        $DOCKER_CMD exec -T database psql -U postgres -c "CREATE DATABASE immich;" 2>/dev/null || true
+        $DOCKER_CMD exec -T database sh -c 'echo "host all all all trust" >> /var/lib/postgresql/data/pg_hba.conf && psql -U postgres -c "SELECT pg_reload_conf();"' 2>/dev/null || true
+        break
+    fi
+    sleep 1
+done
 
 # 9. Detect Network IP Addresses
 LOCAL_IP=$(ip route get 1.1.1.1 2>/dev/null | awk '{print $7}' || hostname -I 2>/dev/null | awk '{print $1}' || echo "localhost")
