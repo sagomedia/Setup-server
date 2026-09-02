@@ -41,9 +41,16 @@ if not exist data\immich\postgres mkdir data\immich\postgres
 if not exist data\immich\model-cache mkdir data\immich\model-cache
 if not exist config\nginx\html mkdir config\nginx\html
 
-REM 4. Launch containers
-echo [INFO] Launching Home Server Containers...
+REM 4. Stop containers before database operations
 docker compose down --remove-orphans >nul 2>&1
+
+REM 5. Pre-configure FileBrowser admin credentials (admin / admin12345678)
+echo [INFO] Configuring FileBrowser admin password...
+docker run --rm -v "%cd%\data\filebrowser:/database" filebrowser/filebrowser users add admin admin12345678 --perm.admin -d /database/filebrowser.db >nul 2>&1
+docker run --rm -v "%cd%\data\filebrowser:/database" filebrowser/filebrowser users update admin --password admin12345678 -d /database/filebrowser.db >nul 2>&1
+
+REM 6. Launch containers
+echo [INFO] Launching Home Server Containers...
 docker compose up -d
 
 echo.
