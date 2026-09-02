@@ -52,6 +52,12 @@ REM 5. Launch containers
 echo [5/5] Launching Home Server Containers...
 docker compose up -d
 
+REM 6. Verify Immich Database Initialization
+echo [INFO] Verifying Immich database initialization...
+timeout /t 3 >nul
+docker compose exec database psql -U postgres -c "CREATE DATABASE immich;" >nul 2>&1
+docker compose exec database sh -c "echo 'host all all 0.0.0.0/0 trust' >> /var/lib/postgresql/data/pg_hba.conf && psql -U postgres -c 'SELECT pg_reload_conf();'" >nul 2>&1
+
 REM Detect Local IP on Windows
 set LOCAL_IP=localhost
 for /f "tokens=4" %%a in ('route print 0.0.0.0 2^>nul ^| findstr 0.0.0.0') do (
@@ -91,11 +97,9 @@ echo      Password : admin12345678
 echo.
 echo ============================================================================
 echo.
-echo [TIP] Immich database takes ~15-20 seconds on first launch to initialize.
-echo.
 
 REM Automatically open the dashboard in default browser
-timeout /t 5 >nul
+timeout /t 3 >nul
 start http://localhost:8000
 
 pause
