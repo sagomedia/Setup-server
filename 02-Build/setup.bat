@@ -53,12 +53,16 @@ REM 6. Launch containers
 echo [INFO] Launching Home Server Containers...
 docker compose up -d
 
-REM 7. Detect IPv4 Address
+REM 7. Dynamically Detect Network IP Addresses on Windows
+set LOCAL_IP=localhost
 for /f "tokens=4" %%a in ('route print 0.0.0.0 ^| findstr 0.0.0.0') do (
     set LOCAL_IP=%%a
     goto :ip_found
 )
 :ip_found
+
+set TAILSCALE_IP=
+for /f "delims=" %%t in ('tailscale ip -4 2^>nul') do set TAILSCALE_IP=%%t
 
 echo.
 echo ============================================================================
@@ -68,6 +72,14 @@ echo.
 echo  HOW TO OPEN ON YOUR PHONE ^& TABLET (Home WiFi):
 echo     http://%LOCAL_IP%:8000
 echo.
+if defined TAILSCALE_IP (
+echo  HOW TO OPEN ON YOUR PHONE ANYWHERE IN THE WORLD (5G Data):
+echo     http://%TAILSCALE_IP%:8000
+echo.
+) else (
+echo  For Worldwide 5G Access: Run Tailscale (see tailscale-guide.md)
+echo.
+)
 echo  HOW TO OPEN ON THIS COMPUTER:
 echo     http://localhost:8000
 echo.
