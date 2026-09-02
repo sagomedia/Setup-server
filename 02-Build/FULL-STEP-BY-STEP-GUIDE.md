@@ -1,49 +1,43 @@
-# 🚀 Sago 24/7 Home Server: The Complete 0-to-1 Blueprint
+# 🚀 24/7 Home Server: The Complete 0-to-1 Master Blueprint
 
-> Turn any old laptop or PC into a 24/7 headless private cloud server with **Immich** (Google Photos), **Jellyfin** (Private Netflix), and **FileBrowser** (Google Drive).
+> Turn any old/spare laptop or PC into a 24/7 headless private cloud server with **Immich** (Google Photos), **Jellyfin** (Private Netflix + Free Live Cable TV), and **FileBrowser** (Web Drive & Remote Media Uploader).
 > Official GitHub: `https://github.com/sagomedia/Setup-server.git`
-> Features a **Zero-Port Unified Launchpad on Port 80**, **Smart TV Auto-Discovery**, **Local 1Gbps Home WiFi**, and **Worldwide 5G Access via Tailscale**.
 
 ---
 
-## 📋 Table of Contents
-1. [Hardware & Power Preparation](#1-hardware--power-preparation)
-2. [Lid Close Configuration (Keep Running 24/7)](#2-lid-close-configuration)
-3. [Headless SSH Setup (Control from Your Main PC)](#3-headless-ssh-setup)
-4. [Docker Installation (Windows & Ubuntu)](#4-docker-installation)
-5. [1-Click Sago Stack Launch](#5-1-click-sago-stack-launch)
-6. [The Zero-Port Unified Launchpad (Port 80)](#6-the-zero-port-unified-launchpad-port-80)
-7. [Smart TV & Living Room Setup (Android TV / FireTV)](#7-smart-tv--living-room-setup)
-8. [Tier 1: Local 1Gbps WiFi Setup (Zero Internet Data)](#8-tier-1-local-1gbps-wifi-setup)
-9. [Tier 2: Worldwide 5G Access via Tailscale](#9-tier-2-worldwide-5g-access-via-tailscale)
-10. [Next Steps: 24/7 AI Agents & Business Bots](#10-next-steps-247-ai-agents--business-bots)
+## 📋 Master Table of Contents
+1. [Hardware & Power Preparation (The Lid-Close Trick)](#1-hardware--power-preparation)
+2. [Headless SSH & Remote Control Setup](#2-headless-ssh--remote-control-setup)
+3. [1-Click Installation (Ubuntu & Windows)](#3-1-click-installation)
+4. [The Sago Launchpad Dashboard (Port 8000)](#4-the-sago-launchpad-dashboard)
+5. [3 Easy Ways to Upload Movies & Files Remotely](#5-3-easy-ways-to-upload-movies--files-remotely)
+6. [Smart TV & Free Live Cable TV Setup in Jellyfin](#6-smart-tv--free-live-cable-tv-setup-in-jellyfin)
+7. [Immich Photo Gallery & Mobile Auto-Backup Setup](#7-immich-photo-gallery--mobile-auto-backup-setup)
+8. [Worldwide 5G Access with Tailscale (Zero Port Forwarding)](#8-worldwide-5g-access-with-tailscale)
+9. [Power Cut Recovery & Client Troubleshooting Runbook](#9-power-cut-recovery--client-troubleshooting)
 
 ---
 
 ## 1. Hardware & Power Preparation
 
-- **Laptop**: Any old laptop (Windows 10/11 or Ubuntu 20.04+, 4GB+ RAM recommended).
-- **Power**: Keep charger plugged in 24/7.
-- **Network**: Connect to your home WiFi router (or plug in an Ethernet cable for max 1Gbps stability).
+- **The Laptop**: Any laptop with 4GB+ RAM, working WiFi or Ethernet port, and charger plugged in.
+- **Why a laptop is better than a desktop**: A laptop already has a built-in battery backup (UPS), built-in WiFi, and uses only ~15W–25W of electricity.
 
----
+### The "Lid-Close" 24/7 Configuration:
+To tuck the laptop into a corner or cupboard with the screen closed:
 
-## 2. Lid Close Configuration
-
-To keep the server running silently in a corner with the screen closed:
-
-### On Windows:
+#### On Windows:
 1. Open **Control Panel** → **Power Options**.
-2. Click **"Choose what closing the lid does"** on the left panel.
-3. Set **"When I close the lid"** (Plugged in) to **"Do nothing"**.
+2. Click **"Choose what closing the lid does"** on the left.
+3. Set **"When I close the lid (Plugged in)"** to **"Do nothing"**.
 4. Click **Save changes**.
 
-### On Ubuntu / Linux:
-1. Edit the system login manager config:
+#### On Ubuntu / Linux:
+1. Open terminal and edit the logind config:
    ```bash
    sudo nano /etc/systemd/logind.conf
    ```
-2. Find and set:
+2. Set:
    ```ini
    HandleLidSwitch=ignore
    HandleLidSwitchDocked=ignore
@@ -55,134 +49,148 @@ To keep the server running silently in a corner with the screen closed:
 
 ---
 
-## 3. Headless SSH Setup
+## 2. Headless SSH & Remote Control Setup
 
-Control the server laptop remotely from your primary laptop/desktop without needing an extra monitor or keyboard.
+You never need to plug a monitor or keyboard into the server laptop again.
 
-### On Ubuntu Server / Desktop:
-1. Install and enable OpenSSH:
-   ```bash
-   sudo apt update && sudo apt install -y openssh-server
-   sudo systemctl enable --now ssh
-   ```
-2. Find the laptop's local IP address:
-   ```bash
-   hostname -I
-   # Example output: 192.168.1.50
-   ```
+### Finding Server IP Address:
+- **Ubuntu**: `hostname -I` (e.g. `192.168.0.140`)
+- **Windows**: `ipconfig`
 
-### On Windows (Server Laptop):
-1. Go to **Settings** → **System** → **Optional features**.
-2. Ensure **"OpenSSH Server"** is installed.
-3. Start the SSH service in PowerShell (Run as Admin):
-   ```powershell
-   Start-Service sshd
-   Set-Service -Name sshd -StartupType 'Automatic'
-   ```
-4. Find IP address via `ipconfig`.
-
-### Connecting from your Main Computer:
-Open terminal/cmd on your main machine:
+### Connecting from Your Main PC / Mac:
+Open terminal or command prompt:
 ```bash
-ssh <username>@192.168.1.50
+ssh <username>@192.168.0.140
 ```
+*(You can also use **VS Code Remote-SSH** to edit files directly on the server).*
 
 ---
 
-## 4. Docker Installation
+## 3. 1-Click Installation
 
-### On Ubuntu / Debian:
-Run the official automated install:
-```bash
-curl -fsSL https://get.docker.com | sh
-sudo usermod -aG docker $USER
-```
-
-### On Windows:
-1. Download [Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/).
-2. During install, ensure **"Use WSL 2 instead of Hyper-V"** is checked.
-3. Start Docker Desktop from the Start Menu.
-
----
-
-## 5. 1-Click Sago Stack Launch
-
-Once inside the server terminal:
-
+### 🐧 On Ubuntu / Debian / Linux:
 ```bash
 git clone https://github.com/sagomedia/Setup-server.git
 cd Setup-server/02-Build
 chmod +x setup.sh
 ./setup.sh
 ```
+*Auto-detects and installs Docker if missing, initializes directories, configures database credentials, and launches all 4 services.*
+
+### 🪟 On Windows 10/11:
+1. Install [Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/) (ensure WSL2 is enabled).
+2. Open the `Setup-server\02-Build` folder.
+3. Double-click **`setup.bat`** (or open PowerShell and run `docker compose up -d`).
 
 ---
 
-## 6. The Zero-Port Unified Launchpad (Port 80)
+## 4. The Sago Launchpad Dashboard
 
-No need for family members to memorize complicated port numbers (`:2283`, `:8096`, `:8080`).
-Simply open your browser and type:
+Open your browser to:
+👉 **`http://<laptop-ip>:8000`** *(e.g. `http://192.168.0.140:8000` or `http://localhost:8000`)*
 
-👉 **`http://<laptop-ip>`** (e.g. `http://192.168.1.50` or `http://localhost`)
-
-This opens the **Sago Launchpad Dashboard** with large visual buttons:
-- 📸 **Immich Photos**: AI face recognition, map view, mobile auto-sync.
-- 🎬 **Jellyfin Movies**: Private Netflix streaming in 4K.
-- 📁 **FileBrowser Drive**: Web Google Drive for all personal & work files.
+The Launchpad provides 1-click access to all services:
+- 📸 **Immich Photos** (`:2283`): Google Photos alternative with AI facial recognition.
+- 🎬 **Jellyfin Movies & Live TV** (`:8096`): 4K streaming + Live TV channels + Smart TV app.
+- 📁 **FileBrowser Drive** (`:8088`): Web file drive & movie uploader (**Login: `admin` / `admin12345678`**).
 
 ---
 
-## 7. Smart TV & Living Room Setup
+## 5. 3 Easy Ways to Upload Movies & Files Remotely
+
+How to add movies or documents to the server from another PC, Mac, or phone without opening the server laptop:
+
+### 🌟 Method 1: Web Drag-and-Drop via FileBrowser (Easiest — Works on Any Device)
+1. Open FileBrowser: `http://192.168.0.140:8088` in your browser.
+2. Log in with `admin` / `admin12345678`.
+3. Open the **`media/movies`** folder.
+4. Drag and drop any `.mp4` or `.mkv` movie directly into the browser window!
+5. In 10 seconds, Jellyfin auto-scans and the movie appears with full poster and cast info!
+
+### 🪟 Method 2: Native Windows / Mac Network Share (SMB)
+Turn on Ubuntu's native folder sharing so the server appears as a drive in Windows File Explorer:
+1. On the Ubuntu server, right-click the `data/media` folder → **"Local Network Share"** → Enable **"Share this folder"**.
+2. On your Windows PC, open File Explorer and type in the address bar:
+   `\\192.168.0.140\movies`
+3. Enter the server's username and password. Now drag and drop files as if it were an internal hard drive!
+
+### 🔌 Method 3: SFTP / FileZilla / WinSCP
+1. Open FileZilla or WinSCP on your computer.
+2. Host: `192.168.0.140`, Port: `22`, Protocol: `SFTP`.
+3. Enter server username & password.
+4. Drag-and-drop huge 50GB 4K movie files over high-speed local WiFi!
+
+---
+
+## 6. Smart TV & Free Live Cable TV Setup in Jellyfin
 
 ### Watching 4K Movies on Smart TV:
-1. Open the App Store on your **Android TV, Google TV, Samsung TV, or FireTV Stick**.
-2. Search and install **"Jellyfin"**.
-3. Open the app — it automatically scans your home WiFi and detects your server!
-4. Use your TV remote to browse movie posters, cast details, and play with subtitles in crystal-clear 4K.
+1. Install **Jellyfin** on Android TV, Google TV, Samsung TV, or FireTV Stick.
+2. Open the app — it automatically detects your server on home WiFi without typing any IP address.
+3. Play 4K movies with full subtitle and multi-audio language support using your TV remote.
 
-### Family Photo Slideshows on Big Screen:
-- Open Immich on your phone.
-- Tap the **Cast icon** (Chromecast / AirPlay / DLNA) to project high-resolution wedding and family photo albums directly onto your living room TV.
-
----
-
-## 8. Tier 1: Local 1Gbps WiFi Setup
-
-When you are at home on the same WiFi network:
-- Access via: `http://192.168.1.50`
-- **Why this is unbeatable:**
-  1. **1Gbps Transfer Speeds**: 4K movies seek and play instantly with zero buffering.
-  2. **Zero Internet Consumption**: Data travels directly between your phone and laptop over the local router — no broadband GB quota is used.
-  3. **Multi-device Streaming**: Multiple family members can stream simultaneously without bandwidth choking.
+### Adding Free 1000+ Live Cable TV Channels (IPTV):
+1. Open Jellyfin web: `http://localhost:8096` → Go to **Dashboard** → **Live TV**.
+2. Under **Tuner Devices**, click **`+` (Add)**:
+   - Type: **M3U Tuner**
+   - URL: `https://iptv-org.github.io/iptv/countries/in.m3u` *(Indian Live Channels)* or `https://iptv-org.github.io/iptv/index.m3u` *(Global Channels)*.
+   - Click **Save**.
+3. Now a **Live TV** channel guide appears on your Smart TV and phone to watch live broadcasts for ₹0!
 
 ---
 
-## 9. Tier 2: Worldwide 5G Access via Tailscale
+## 7. Immich Photo Gallery & Mobile Auto-Backup Setup
 
-To access your server while outside your home (bypassing ISP CGNAT without router port forwarding):
+1. Complete the quick web onboarding at `http://localhost:2283`.
+2. Download the **Immich app** on your Android / iPhone.
+3. Open the app:
+   - Server URL: `http://192.168.0.140:2283`
+   - Log in with your Immich email & password.
+4. Tap **Backup** → Select your Camera Album → Tap **Start Backup**.
+5. All new photos automatically sync to your server over WiFi in original 4K/RAW quality with zero cloud storage limits!
 
-### 1. On the Server Laptop:
+---
+
+## 8. Worldwide 5G Access with Tailscale
+
+Bypass home broadband CGNAT without router port forwarding:
+
+1. **On the Server Laptop**:
+   ```bash
+   curl -fsSL https://tailscale.com/install.sh | sh
+   sudo tailscale up
+   ```
+   Log in with your Google/GitHub account and note your Tailscale IP (e.g. `100.70.14.22`).
+
+2. **On Your Phone**:
+   - Install **Tailscale** and log in with the **same account**.
+   - Turn the VPN switch **ON**.
+
+3. **Open Services from Anywhere**:
+   - Dashboard: `http://100.70.14.22:8000`
+   - Photos: `http://100.70.14.22:2283`
+   - Movies & Live TV: `http://100.70.14.22:8096`
+   - File Drive: `http://100.70.14.22:8088`
+
+---
+
+## 9. Power Cut Recovery & Client Troubleshooting Runbook
+
+### What happens after a power cut?
+- Once power returns and the laptop turns on, Docker starts automatically.
+- All 4 services auto-restart within 30 seconds. No manual intervention required!
+
+### Health Check Command:
 ```bash
-curl -fsSL https://tailscale.com/install.sh | sh
-sudo tailscale up
+./test-stack.sh
 ```
-Log in using your Google or GitHub account. Note your Tailscale IP (e.g. `100.80.20.10`).
+Look for 4 green checkmarks: `✅ PASS (HTTP 200)`.
 
-### 2. On Your Phone / Tablet:
-1. Install **Tailscale** from the App Store / Play Store.
-2. Sign in with the **same account**.
-3. Toggle the VPN switch to **Connected**.
+### How to restart if anything ever gets stuck:
+```bash
+docker compose up -d
+```
 
-### 3. Open Services via Tailscale IP:
-- Dashboard on 5G: `http://100.80.20.10`
-- Photos on 5G: `http://100.80.20.10:2283`
-- Movies on 5G: `http://100.80.20.10:8096`
-
----
-
-## 10. Next Steps: 24/7 AI Agents & Business Bots
-
-Your 24/7 server is now a launchpad for advanced automation:
-- **Autonomous Coding Agents**: Run background agents (Hermes, Codex) for overnight research and tasks.
-- **WhatsApp Client Bots**: Host business customer care and automated booking bots.
-- **Personal Websites**: Expose your portfolio on a custom domain with Cloudflare Tunnels.
+### Changing Default Passwords:
+- **FileBrowser**: Click **Settings** on the left menu → **User Management** → Click `admin` → Enter new password.
+- **Immich & Jellyfin**: Change in **User Settings** inside each web portal.

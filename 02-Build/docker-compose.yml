@@ -15,7 +15,9 @@ services:
       - jellyfin
 
   # ============================================================================
-  # 1. FILEBROWSER — Private Web Drive (Port 8088)
+  # 1. FILEBROWSER — Web File & Movie Manager (Port 8088)
+  # Mounts the root data directory so users can upload movies, files, and photos
+  # directly from their browser on any device!
   # ============================================================================
   filebrowser:
     image: filebrowser/filebrowser:latest
@@ -23,7 +25,7 @@ services:
     ports:
       - "8088:80"
     volumes:
-      - ${FILEBROWSER_DATA:-./data/files}:/srv
+      - ${FILEBROWSER_DATA:-./data}:/srv
       - ./data/filebrowser:/database
     environment:
       - FB_DATABASE=/database/filebrowser.db
