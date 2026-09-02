@@ -59,23 +59,34 @@ docker run --rm -v "$DIR/data/filebrowser:/database" filebrowser/filebrowser use
 echo "🐳 Launching Home Server Stack ($DOCKER_CMD up -d)..."
 $DOCKER_CMD up -d
 
-# 8. Get Local IP Address
-LOCAL_IP=$(hostname -I 2>/dev/null | awk '{print $1}' || echo "localhost")
+# 8. Detect Network IP Addresses
+LOCAL_IP=$(ip route get 1.1.1.1 2>/dev/null | awk '{print $7}' || hostname -I 2>/dev/null | awk '{print $1}' || echo "localhost")
+TAILSCALE_IP=$(tailscale ip -4 2>/dev/null || echo "")
 
 echo ""
-echo "========================================================="
-echo " 🎉 ALL SERVICES ARE NOW LIVE & RUNNING 24/7!"
-echo "========================================================="
+echo "============================================================================"
+echo " 🎉 CONGRATULATIONS! YOUR 24/7 PRIVATE HOME SERVER IS LIVE!"
+echo "============================================================================"
 echo ""
-echo " 🌐 Launchpad Dashboard        : http://${LOCAL_IP}:8000"
-echo " 📸 Immich Photos              : http://${LOCAL_IP}:2283"
-echo " 🎬 Jellyfin Movies (Smart TV) : http://${LOCAL_IP}:8096"
-echo " 📁 FileBrowser Drive          : http://${LOCAL_IP}:8088"
+echo " 📱 HOW TO OPEN ON YOUR PHONE & TABLET (Home WiFi):"
+echo "    👉 http://${LOCAL_IP}:8000"
 echo ""
-echo " 💡 FileBrowser Login Credentials:"
+if [ -n "$TAILSCALE_IP" ]; then
+echo " 🌍 HOW TO OPEN ON YOUR PHONE ANYWHERE IN THE WORLD (5G Data):"
+echo "    👉 http://${TAILSCALE_IP}:8000"
+echo ""
+else
+echo " 💡 For Worldwide 5G Access: Run 'sudo tailscale up' (see tailscale-guide.md)"
+echo ""
+fi
+echo " 💻 HOW TO OPEN ON THIS COMPUTER:"
+echo "    👉 http://localhost:8000"
+echo ""
+echo " 📺 HOW TO WATCH ON SMART TV (Android TV / FireTV):"
+echo "    • Open the Jellyfin app on TV -> Auto-detects this server on your WiFi!"
+echo ""
+echo " 📁 FILE BROWSER LOGIN CREDENTIALS:"
 echo "    • Username : admin"
 echo "    • Password : admin12345678"
+echo "============================================================================"
 echo ""
-echo " 💡 Smart TV: Install Jellyfin app on TV — auto-detects this server!"
-echo " 💡 Remote 5G Access: Run 'sudo tailscale up' (see tailscale-guide.md)"
-echo "========================================================="

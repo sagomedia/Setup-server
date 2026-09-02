@@ -53,17 +53,30 @@ REM 6. Launch containers
 echo [INFO] Launching Home Server Containers...
 docker compose up -d
 
+REM 7. Detect IPv4 Address
+for /f "tokens=4" %%a in ('route print 0.0.0.0 ^| findstr 0.0.0.0') do (
+    set LOCAL_IP=%%a
+    goto :ip_found
+)
+:ip_found
+
 echo.
-echo =========================================================
-echo  ALL SERVICES ARE NOW LIVE ON YOUR WINDOWS PC!
-echo =========================================================
+echo ============================================================================
+echo  CONGRATULATIONS! YOUR 24/7 PRIVATE HOME SERVER IS LIVE!
+echo ============================================================================
 echo.
-echo  Launchpad Dashboard      : http://localhost:8000
-echo  Immich Photos            : http://localhost:2283
-echo  Jellyfin Movies          : http://localhost:8096
-echo  FileBrowser Drive        : http://localhost:8088
+echo  HOW TO OPEN ON YOUR PHONE ^& TABLET (Home WiFi):
+echo     http://%LOCAL_IP%:8000
 echo.
-echo  FileBrowser Login: admin / admin12345678
-echo =========================================================
+echo  HOW TO OPEN ON THIS COMPUTER:
+echo     http://localhost:8000
+echo.
+echo  HOW TO WATCH ON SMART TV (Android TV / FireTV):
+echo     Open the Jellyfin app on TV - Auto-detects this server on your WiFi!
+echo.
+echo  FILE BROWSER LOGIN CREDENTIALS:
+echo     Username : admin
+echo     Password : admin12345678
+echo ============================================================================
 echo.
 pause
