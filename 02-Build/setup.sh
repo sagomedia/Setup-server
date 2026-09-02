@@ -46,20 +46,25 @@ echo "📁 Initializing storage volumes and setting permissions..."
 mkdir -p data config/nginx/html config/nginx
 docker run --rm -v "$DIR/data:/data" alpine sh -c "mkdir -p /data/files /data/filebrowser /data/jellyfin/config /data/jellyfin/cache /data/media/movies /data/media/shows /data/immich/photos /data/immich/postgres /data/immich/model-cache && chmod -R 777 /data" 2>/dev/null || chmod -R 777 data 2>/dev/null || true
 
-# 5. Stop containers before database operations
+# 5. Stop running containers before database operations
 echo "🛑 Stopping containers for clean initialization..."
 $DOCKER_CMD down --remove-orphans 2>/dev/null || true
 
-# 6. Ensure FileBrowser admin password is set to default admin12345678
-echo "🔑 Pre-configuring FileBrowser admin credentials (admin / admin12345678)..."
-docker run --rm -v "$DIR/data/filebrowser:/database" filebrowser/filebrowser users add admin admin12345678 --perm.admin -d /database/filebrowser.db 2>/dev/null || \
-docker run --rm -v "$DIR/data/filebrowser:/database" filebrowser/filebrowser users update admin --password admin12345678 -d /database/filebrowser.db 2>/dev/null || true
+# 6. Initialize FileBrowser DB & Pre-configure admin / admin12345678
+if [ ! -f "$DIR/data/filebrowser/filebrowser.db" ]; then
+    echo "🔑 Initializing FileBrowser database and admin credentials..."
+    docker run --rm -v "$DIR/data/filebrowser:/database" filebrowser/filebrowser config init -d /database/filebrowser.db 2>/dev/null || true
+    docker run --rm -v "$DIR/data/filebrowser:/database" filebrowser/filebrowser users add admin admin12345678 --perm.admin -d /database/filebrowser.db 2>/dev/null || true
+else
+    echo "🔑 Updating FileBrowser admin password..."
+    docker run --rm -v "$DIR/data/filebrowser:/database" filebrowser/filebrowser users update admin --password admin12345678 -d /database/filebrowser.db 2>/dev/null || true
+fi
 
 # 7. Launch containers
 echo "🐳 Launching Home Server Stack ($DOCKER_CMD up -d)..."
 $DOCKER_CMD up -d
 
-# 8. Ensure PostgreSQL database is initialized
+# 8. Ensure PostgreSQL has the immich database & proper permissions
 echo "🗄️ Verifying Immich database initialization..."
 for i in {1..15}; do
     if $DOCKER_CMD exec -T database pg_isready -U postgres &>/dev/null; then
