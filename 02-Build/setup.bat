@@ -3,33 +3,34 @@ REM ============================================================================
 REM 24/7 HOME SERVER SETUP FOR WINDOWS (1-CLICK BATCH)
 REM ==============================================================================
 title 24/7 Home Server Setup
+color 0B
 
-echo =========================================================
-echo  24/7 HOME SERVER (WINDOWS 1-CLICK)
-echo =========================================================
+echo ============================================================================
+echo   SAGO 24/7 HOME SERVER - WINDOWS 1-CLICK LAUNCHER
+echo ============================================================================
 echo.
 
-REM 1. Check if Docker Desktop is installed/running
+REM 1. Check if Docker Desktop is running
 docker --version >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
     echo [ERROR] Docker is not detected!
-    echo Please download and install Docker Desktop for Windows from:
-    echo https://www.docker.com/products/docker-desktop/
-    echo Ensure 'WSL 2 backend' is selected during install.
+    echo Please install Docker Desktop from https://www.docker.com/products/docker-desktop/
+    echo Make sure Docker Desktop is OPEN and running.
+    echo.
     pause
     exit /b 1
 )
 
-echo [OK] Docker is installed and running.
+echo [1/5] Docker is running properly.
 
 REM 2. Create .env from template if missing
 if not exist .env (
-    echo [INFO] Creating .env configuration from template...
+    echo [2/5] Creating .env configuration from template...
     copy .env.example .env >nul
 )
 
 REM 3. Create persistent directories
-echo [INFO] Pre-creating persistent storage folders...
+echo [3/5] Initializing storage directories...
 if not exist data\files mkdir data\files
 if not exist data\filebrowser mkdir data\filebrowser
 if not exist data\jellyfin\config mkdir data\jellyfin\config
@@ -41,54 +42,60 @@ if not exist data\immich\postgres mkdir data\immich\postgres
 if not exist data\immich\model-cache mkdir data\immich\model-cache
 if not exist config\nginx\html mkdir config\nginx\html
 
-REM 4. Stop containers before database operations
+REM 4. Stop stale containers & configure FileBrowser password
+echo [4/5] Pre-configuring FileBrowser admin credentials...
 docker compose down --remove-orphans >nul 2>&1
-
-REM 5. Pre-configure FileBrowser admin credentials (admin / admin12345678)
-echo [INFO] Configuring FileBrowser admin password...
 docker run --rm -v "%cd%\data\filebrowser:/database" filebrowser/filebrowser users add admin admin12345678 --perm.admin -d /database/filebrowser.db >nul 2>&1
 docker run --rm -v "%cd%\data\filebrowser:/database" filebrowser/filebrowser users update admin --password admin12345678 -d /database/filebrowser.db >nul 2>&1
 
-REM 6. Launch containers
-echo [INFO] Launching Home Server Containers...
+REM 5. Launch containers
+echo [5/5] Launching Home Server Containers...
 docker compose up -d
 
-REM 7. Dynamically Detect Network IP Addresses on Windows
+REM Detect Local IP on Windows
 set LOCAL_IP=localhost
-for /f "tokens=4" %%a in ('route print 0.0.0.0 ^| findstr 0.0.0.0') do (
+for /f "tokens=4" %%a in ('route print 0.0.0.0 2^>nul ^| findstr 0.0.0.0') do (
     set LOCAL_IP=%%a
-    goto :ip_found
+    goto :ip_done
 )
-:ip_found
+:ip_done
 
-set TAILSCALE_IP=
-for /f "delims=" %%t in ('tailscale ip -4 2^>nul') do set TAILSCALE_IP=%%t
+REM Detect Tailscale IP on Windows if available
+set TS_IP=
+for /f "delims=" %%t in ('tailscale ip -4 2^>nul') do set TS_IP=%%t
 
 echo.
 echo ============================================================================
-echo  CONGRATULATIONS! YOUR 24/7 PRIVATE HOME SERVER IS LIVE!
+echo   CONGRATULATIONS! YOUR 24/7 PRIVATE HOME SERVER IS LIVE!
 echo ============================================================================
 echo.
-echo  HOW TO OPEN ON YOUR PHONE ^& TABLET (Home WiFi):
-echo     http://%LOCAL_IP%:8000
+echo   HOW TO OPEN ON YOUR PHONE AND TABLET (Home WiFi):
+echo      http://%LOCAL_IP%:8000
 echo.
-if defined TAILSCALE_IP (
-echo  HOW TO OPEN ON YOUR PHONE ANYWHERE IN THE WORLD (5G Data):
-echo     http://%TAILSCALE_IP%:8000
-echo.
+if "%TS_IP%"=="" (
+    echo   For Worldwide 5G Access: Run Tailscale (see tailscale-guide.md)
 ) else (
-echo  For Worldwide 5G Access: Run Tailscale (see tailscale-guide.md)
-echo.
+    echo   HOW TO OPEN ON YOUR PHONE ANYWHERE IN THE WORLD (5G Data):
+    echo      http://%TS_IP%:8000
 )
-echo  HOW TO OPEN ON THIS COMPUTER:
-echo     http://localhost:8000
 echo.
-echo  HOW TO WATCH ON SMART TV (Android TV / FireTV):
-echo     Open the Jellyfin app on TV - Auto-detects this server on your WiFi!
+echo   HOW TO OPEN ON THIS COMPUTER:
+echo      http://localhost:8000
 echo.
-echo  FILE BROWSER LOGIN CREDENTIALS:
-echo     Username : admin
-echo     Password : admin12345678
+echo   HOW TO WATCH ON SMART TV (Android TV / FireTV):
+echo      Open Jellyfin app on TV - Auto-detects this server on your WiFi!
+echo.
+echo   FILE BROWSER LOGIN CREDENTIALS:
+echo      Username : admin
+echo      Password : admin12345678
+echo.
 echo ============================================================================
 echo.
+echo [TIP] Immich database takes ~15-20 seconds on first launch to initialize.
+echo.
+
+REM Automatically open the dashboard in default browser
+timeout /t 5 >nul
+start http://localhost:8000
+
 pause
