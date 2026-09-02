@@ -1,11 +1,11 @@
 @echo off
 REM ==============================================================================
-REM SAGO AUTOMATIONS — 1-CLICK HOME SERVER SETUP FOR WINDOWS
+REM 24/7 HOME SERVER SETUP FOR WINDOWS (1-CLICK BATCH)
 REM ==============================================================================
-title SAGO 24/7 Home Server Setup
+title 24/7 Home Server Setup
 
 echo =========================================================
-echo  SAGO AUTOMATIONS - 24/7 HOME SERVER (WINDOWS 1-CLICK)
+echo  24/7 HOME SERVER (WINDOWS 1-CLICK)
 echo =========================================================
 echo.
 
@@ -51,12 +51,12 @@ echo =========================================================
 echo  ALL SERVICES ARE NOW LIVE ON YOUR WINDOWS PC!
 echo =========================================================
 echo.
-echo  Sago Launchpad Dashboard : http://localhost:8000
+echo  Launchpad Dashboard      : http://localhost:8000
 echo  Immich Photos            : http://localhost:2283
 echo  Jellyfin Movies          : http://localhost:8096
 echo  FileBrowser Drive        : http://localhost:8088
 echo.
-echo  FileBrowser Login: admin / sagoadmin1234
+echo  FileBrowser Login: admin / admin12345678
 echo =========================================================
 echo.
 pause

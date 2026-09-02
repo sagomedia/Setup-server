@@ -1,6 +1,6 @@
 services:
   # ============================================================================
-  # 0. SAGO REVERSE PROXY & DASHBOARD (Port 8000 / Standard Web Access)
+  # 0. REVERSE PROXY & DASHBOARD (Port 8000)
   # ============================================================================
   gateway:
     image: nginx:alpine
@@ -15,7 +15,7 @@ services:
       - jellyfin
 
   # ============================================================================
-  # 1. FILEBROWSER — Private Web Google Drive (Port 8088)
+  # 1. FILEBROWSER — Private Web Drive (Port 8088)
   # ============================================================================
   filebrowser:
     image: filebrowser/filebrowser:latest
@@ -64,7 +64,7 @@ services:
     environment:
       - DB_HOSTNAME=database
       - DB_USERNAME=postgres
-      - DB_PASSWORD=${DB_PASSWORD:-sago_home_server_supersecret}
+      - DB_PASSWORD=${DB_PASSWORD:-database_secret_password}
       - DB_DATABASE_NAME=immich
       - REDIS_HOSTNAME=redis
       - IMMICH_MACHINE_LEARNING_URL=http://immich-machine-learning:3003
@@ -91,7 +91,7 @@ services:
     image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0
     restart: unless-stopped
     environment:
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-sago_home_server_supersecret}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-database_secret_password}
       POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_DB: ${DB_DATABASE_NAME:-immich}
       POSTGRES_INITDB_ARGS: '--data-checksums'

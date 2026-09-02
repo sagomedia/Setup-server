@@ -2,11 +2,11 @@
 set -e
 
 # ==============================================================================
-# SAGO AUTOMATIONS — 1-CLICK 24/7 HOME SERVER (ZERO-DEPENDENCY SETUP)
+# 24/7 HOME SERVER 1-CLICK SETUP (ZERO-DEPENDENCY BOOTSTRAP)
 # ==============================================================================
 
 echo "========================================================="
-echo " 🚀 SAGO AUTOMATIONS — 24/7 HOME SERVER SETUP"
+echo " 🚀 24/7 HOME SERVER SETUP"
 echo "========================================================="
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -50,10 +50,10 @@ docker run --rm -v "$DIR/data:/data" alpine sh -c "mkdir -p /data/files /data/fi
 echo "🛑 Stopping containers for clean initialization..."
 $DOCKER_CMD down --remove-orphans 2>/dev/null || true
 
-# 6. Ensure FileBrowser admin password is set to sagoadmin1234
-echo "🔑 Pre-configuring FileBrowser admin credentials (admin / sagoadmin1234)..."
-docker run --rm -v "$DIR/data/filebrowser:/database" filebrowser/filebrowser users add admin sagoadmin1234 --perm.admin -d /database/filebrowser.db 2>/dev/null || \
-docker run --rm -v "$DIR/data/filebrowser:/database" filebrowser/filebrowser users update admin --password sagoadmin1234 -d /database/filebrowser.db 2>/dev/null || true
+# 6. Ensure FileBrowser admin password is set to default admin12345678
+echo "🔑 Pre-configuring FileBrowser admin credentials (admin / admin12345678)..."
+docker run --rm -v "$DIR/data/filebrowser:/database" filebrowser/filebrowser users add admin admin12345678 --perm.admin -d /database/filebrowser.db 2>/dev/null || \
+docker run --rm -v "$DIR/data/filebrowser:/database" filebrowser/filebrowser users update admin --password admin12345678 -d /database/filebrowser.db 2>/dev/null || true
 
 # 7. Launch containers
 echo "🐳 Launching Home Server Stack ($DOCKER_CMD up -d)..."
@@ -67,14 +67,14 @@ echo "========================================================="
 echo " 🎉 ALL SERVICES ARE NOW LIVE & RUNNING 24/7!"
 echo "========================================================="
 echo ""
-echo " 🌐 Sago Launchpad (Dashboard) : http://${LOCAL_IP}:8000"
+echo " 🌐 Launchpad Dashboard        : http://${LOCAL_IP}:8000"
 echo " 📸 Immich Photos              : http://${LOCAL_IP}:2283"
 echo " 🎬 Jellyfin Movies (Smart TV) : http://${LOCAL_IP}:8096"
 echo " 📁 FileBrowser Drive          : http://${LOCAL_IP}:8088"
 echo ""
 echo " 💡 FileBrowser Login Credentials:"
 echo "    • Username : admin"
-echo "    • Password : sagoadmin1234"
+echo "    • Password : admin12345678"
 echo ""
 echo " 💡 Smart TV: Install Jellyfin app on TV — auto-detects this server!"
 echo " 💡 Remote 5G Access: Run 'sudo tailscale up' (see tailscale-guide.md)"
