@@ -15,9 +15,7 @@ services:
       - jellyfin
 
   # ============================================================================
-  # 1. FILEBROWSER — Web File & Movie Manager (Port 8088)
-  # Mounts the root data directory so users can upload movies, files, and photos
-  # directly from their browser on any device!
+  # 1. FILEBROWSER — Private Web Drive & Media Uploader (Port 8088)
   # ============================================================================
   filebrowser:
     image: filebrowser/filebrowser:latest
@@ -62,7 +60,6 @@ services:
       - "2283:2283"
     volumes:
       - ${UPLOAD_LOCATION:-./data/immich/photos}:/data
-      - /etc/localtime:/etc/localtime:ro
     environment:
       - DB_HOSTNAME=database
       - DB_USERNAME=postgres
@@ -70,24 +67,34 @@ services:
       - DB_DATABASE_NAME=immich
       - REDIS_HOSTNAME=redis
       - IMMICH_MACHINE_LEARNING_URL=http://immich-machine-learning:3003
+      - TZ=${TZ:-Asia/Kolkata}
     env_file:
       - .env
     depends_on:
-      - redis
-      - database
+      redis:
+        condition: service_healthy
+      database:
+        condition: service_healthy
 
   immich-machine-learning:
     image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
-    container_name: immich_machine_learning
     restart: unless-stopped
     volumes:
       - ./data/immich/model-cache:/cache
+    environment:
+      - TZ=${TZ:-Asia/Kolkata}
     env_file:
       - .env
 
   redis:
     image: docker.io/valkey/valkey:8-alpine
     restart: unless-stopped
+    healthcheck:
+      test: valkey-cli ping || redis-cli ping || exit 1
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 2s
 
   database:
     image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0
@@ -97,6 +104,13 @@ services:
       POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_DB: ${DB_DATABASE_NAME:-immich}
       POSTGRES_INITDB_ARGS: '--data-checksums'
+      POSTGRES_HOST_AUTH_METHOD: "trust"
     volumes:
       - ${DB_DATA_LOCATION:-./data/immich/postgres}:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready --dbname="$${POSTGRES_DB:-immich}" --username="$${POSTGRES_USER:-postgres}" || exit 1
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 3s
     shm_size: 512mb
