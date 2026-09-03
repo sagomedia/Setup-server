@@ -62,6 +62,26 @@ timeout /t 3 >nul
 docker compose exec -T database psql -U postgres -c "CREATE DATABASE immich;" >nul 2>&1
 docker compose exec -T database sh -c "echo 'host all all all trust' >> /var/lib/postgresql/data/pg_hba.conf && psql -U postgres -c 'SELECT pg_reload_conf();'" >nul 2>&1
 
+REM 7. Check Tailscale on Windows
+set TS_CMD=tailscale
+where tailscale >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    if exist "%ProgramFiles%\Tailscale\tailscale.exe" (
+        set TS_CMD="%ProgramFiles%\Tailscale\tailscale.exe"
+    )
+)
+
+set TS_IP=
+for /f "delims=" %%t in ('%TS_CMD% ip -4 2^>nul') do set TS_IP=%%t
+
+if "%TS_IP%"=="" (
+    echo.
+    echo ============================================================================
+    echo   [OPTIONAL] Worldwide 5G Access via Tailscale
+    echo   Install Tailscale for Windows: https://tailscale.com/download/windows
+    echo ============================================================================
+)
+
 REM Detect Local IP on Windows
 set LOCAL_IP=localhost
 for /f "tokens=4" %%a in ('route print 0.0.0.0 2^>nul ^| findstr 0.0.0.0') do (
@@ -69,10 +89,6 @@ for /f "tokens=4" %%a in ('route print 0.0.0.0 2^>nul ^| findstr 0.0.0.0') do (
     goto :ip_done
 )
 :ip_done
-
-REM Detect Tailscale IP on Windows if available
-set TS_IP=
-for /f "delims=" %%t in ('tailscale ip -4 2^>nul') do set TS_IP=%%t
 
 echo.
 echo ============================================================================
@@ -82,13 +98,11 @@ echo.
 echo   HOW TO OPEN ON YOUR PHONE AND TABLET (Home WiFi):
 echo      http://%LOCAL_IP%:8000
 echo.
-if "%TS_IP%"=="" (
-    echo   For Worldwide 5G Access: Run Tailscale (see tailscale-guide.md)
-) else (
+if not "%TS_IP%"=="" (
     echo   HOW TO OPEN ON YOUR PHONE ANYWHERE IN THE WORLD (5G Data):
     echo      http://%TS_IP%:8000
+    echo.
 )
-echo.
 echo   HOW TO OPEN ON THIS COMPUTER:
 echo      http://localhost:8000
 echo.

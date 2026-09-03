@@ -75,7 +75,27 @@ for i in {1..15}; do
     sleep 1
 done
 
-# 9. Detect Network IP Addresses
+# 9. Auto-Install and Setup Tailscale for Worldwide 5G Access
+if ! command -v tailscale &> /dev/null; then
+    echo ""
+    echo "========================================================="
+    echo " 🌐 Auto-Installing Tailscale for Worldwide 5G Access..."
+    echo "========================================================="
+    curl -fsSL https://tailscale.com/install.sh | sh || true
+fi
+
+if command -v tailscale &> /dev/null; then
+    if ! tailscale ip -4 &>/dev/null; then
+        echo ""
+        echo "========================================================="
+        echo " 🔑 Authenticating Tailscale for Worldwide 5G Access"
+        echo " 👉 Visit the URL below to log in with Google or GitHub:"
+        echo "========================================================="
+        sudo tailscale up || true
+    fi
+fi
+
+# 10. Detect Network IP Addresses
 LOCAL_IP=$(ip route get 1.1.1.1 2>/dev/null | awk '{print $7}' || hostname -I 2>/dev/null | awk '{print $1}' || echo "localhost")
 TAILSCALE_IP=$(tailscale ip -4 2>/dev/null || echo "")
 
@@ -92,7 +112,7 @@ echo " 🌍 HOW TO OPEN ON YOUR PHONE ANYWHERE IN THE WORLD (5G Data):"
 echo "    👉 http://${TAILSCALE_IP}:8000"
 echo ""
 else
-echo " 💡 For Worldwide 5G Access: Run 'sudo tailscale up' (see tailscale-guide.md)"
+echo " 💡 Tailscale: Run 'sudo tailscale up' anytime to connect to worldwide 5G."
 echo ""
 fi
 echo " 💻 HOW TO OPEN ON THIS COMPUTER:"
