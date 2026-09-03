@@ -64,9 +64,9 @@ fi
 echo "🐳 Launching Home Server Stack ($DOCKER_CMD up -d)..."
 $DOCKER_CMD up -d
 
-# 8. Wait for Immich & Database to complete initialization
+# 8. Wait for Immich Photos & Database to complete initialization
 echo "⏳ Waiting for Immich Photos & Database to be 100% ready..."
-for i in {1..40}; do
+for i in {1..35}; do
     HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:2283 2>/dev/null || echo "000")
     if [[ "$HTTP_CODE" =~ ^(200|302|401|404)$ ]]; then
         echo "✅ Immich Photos is ready!"
@@ -75,23 +75,10 @@ for i in {1..40}; do
     sleep 2
 done
 
-# 9. Check / Install Tailscale for Worldwide 5G Access
+# 9. Check / Install Tailscale for Worldwide 5G Access (Non-blocking)
 if ! command -v tailscale &> /dev/null; then
-    echo ""
-    echo "========================================================="
-    echo " 🌐 Installing Tailscale for Worldwide 5G Access..."
-    echo "========================================================="
+    echo "🌐 Installing Tailscale for Worldwide 5G Access..."
     curl -fsSL https://tailscale.com/install.sh | sh 2>/dev/null || true
-fi
-
-if command -v tailscale &> /dev/null; then
-    if ! tailscale ip -4 &>/dev/null; then
-        echo ""
-        echo "========================================================="
-        echo " 🔑 Connect Worldwide 5G: Run 'sudo tailscale up'"
-        echo "========================================================="
-        sudo tailscale up 2>/dev/null || true
-    fi
 fi
 
 # 10. Detect Network IP Addresses
