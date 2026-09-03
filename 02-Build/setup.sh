@@ -64,18 +64,7 @@ fi
 echo "🐳 Launching Home Server Stack ($DOCKER_CMD up -d)..."
 $DOCKER_CMD up -d
 
-# 8. Ensure PostgreSQL has the immich database & proper permissions
-echo "🗄️ Verifying Immich database initialization..."
-for i in {1..15}; do
-    if $DOCKER_CMD exec -T database pg_isready -U postgres &>/dev/null; then
-        $DOCKER_CMD exec -T database psql -U postgres -c "CREATE DATABASE immich;" 2>/dev/null || true
-        $DOCKER_CMD exec -T database sh -c 'echo "host all all all trust" >> /var/lib/postgresql/data/pg_hba.conf && psql -U postgres -c "SELECT pg_reload_conf();"' 2>/dev/null || true
-        break
-    fi
-    sleep 1
-done
-
-# 9. Auto-Install and Setup Tailscale for Worldwide 5G Access
+# 8. Auto-Install and Setup Tailscale for Worldwide 5G Access
 if ! command -v tailscale &> /dev/null; then
     echo ""
     echo "========================================================="
@@ -95,7 +84,7 @@ if command -v tailscale &> /dev/null; then
     fi
 fi
 
-# 10. Detect Network IP Addresses
+# 9. Detect Network IP Addresses
 LOCAL_IP=$(ip route get 1.1.1.1 2>/dev/null | awk '{print $7}' || hostname -I 2>/dev/null | awk '{print $1}' || echo "localhost")
 TAILSCALE_IP=$(tailscale ip -4 2>/dev/null || echo "")
 

@@ -56,13 +56,7 @@ REM 5. Launch containers
 echo [5/5] Launching Home Server Containers...
 docker compose up -d
 
-REM 6. Verify and Ensure Immich Database Exists in PostgreSQL
-echo [INFO] Verifying Immich database readiness...
-timeout /t 3 >nul
-docker compose exec -T database psql -U postgres -c "CREATE DATABASE immich;" >nul 2>&1
-docker compose exec -T database sh -c "echo 'host all all all trust' >> /var/lib/postgresql/data/pg_hba.conf && psql -U postgres -c 'SELECT pg_reload_conf();'" >nul 2>&1
-
-REM 7. Check Tailscale on Windows
+REM 6. Check Tailscale on Windows
 set TS_CMD=tailscale
 where tailscale >nul 2>&1
 if %ERRORLEVEL% NEQ 0 (
