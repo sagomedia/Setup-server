@@ -64,27 +64,37 @@ fi
 echo "🐳 Launching Home Server Stack ($DOCKER_CMD up -d)..."
 $DOCKER_CMD up -d
 
-# 8. Auto-Install and Setup Tailscale for Worldwide 5G Access
+# 8. Wait for Immich & Database to complete initialization
+echo "⏳ Waiting for Immich Photos & Database to be 100% ready..."
+for i in {1..40}; do
+    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:2283 2>/dev/null || echo "000")
+    if [[ "$HTTP_CODE" =~ ^(200|302|401|404)$ ]]; then
+        echo "✅ Immich Photos is ready!"
+        break
+    fi
+    sleep 2
+done
+
+# 9. Check / Install Tailscale for Worldwide 5G Access
 if ! command -v tailscale &> /dev/null; then
     echo ""
     echo "========================================================="
-    echo " 🌐 Auto-Installing Tailscale for Worldwide 5G Access..."
+    echo " 🌐 Installing Tailscale for Worldwide 5G Access..."
     echo "========================================================="
-    curl -fsSL https://tailscale.com/install.sh | sh || true
+    curl -fsSL https://tailscale.com/install.sh | sh 2>/dev/null || true
 fi
 
 if command -v tailscale &> /dev/null; then
     if ! tailscale ip -4 &>/dev/null; then
         echo ""
         echo "========================================================="
-        echo " 🔑 Authenticating Tailscale for Worldwide 5G Access"
-        echo " 👉 Visit the URL below to log in with Google or GitHub:"
+        echo " 🔑 Connect Worldwide 5G: Run 'sudo tailscale up'"
         echo "========================================================="
-        sudo tailscale up || true
+        sudo tailscale up 2>/dev/null || true
     fi
 fi
 
-# 9. Detect Network IP Addresses
+# 10. Detect Network IP Addresses
 LOCAL_IP=$(ip route get 1.1.1.1 2>/dev/null | awk '{print $7}' || hostname -I 2>/dev/null | awk '{print $1}' || echo "localhost")
 TAILSCALE_IP=$(tailscale ip -4 2>/dev/null || echo "")
 
@@ -101,7 +111,7 @@ echo " 🌍 HOW TO OPEN ON YOUR PHONE ANYWHERE IN THE WORLD (5G Data):"
 echo "    👉 http://${TAILSCALE_IP}:8000"
 echo ""
 else
-echo " 💡 Tailscale: Run 'sudo tailscale up' anytime to connect to worldwide 5G."
+echo " 💡 For Worldwide 5G Access: Run 'sudo tailscale up' anytime."
 echo ""
 fi
 echo " 💻 HOW TO OPEN ON THIS COMPUTER:"

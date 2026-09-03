@@ -56,6 +56,10 @@ REM 5. Launch containers
 echo [5/5] Launching Home Server Containers...
 docker compose up -d
 
+echo.
+echo [INFO] Waiting for Immich Photos & Database initialization (approx 15 seconds)...
+timeout /t 15 >nul
+
 REM 6. Check Tailscale on Windows
 set TS_CMD=tailscale
 where tailscale >nul 2>&1
@@ -111,7 +115,7 @@ echo ===========================================================================
 echo.
 
 REM Automatically open the dashboard in default browser
-timeout /t 3 >nul
+timeout /t 2 >nul
 start http://localhost:8000
 
 pause
